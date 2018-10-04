@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="images">
+    <file>images/view_database.png</file>
+    <file>images/setting.png</file>
+    <file>images/open.png</file>
+    <file>images/login.png</file>
+  </qresource>
+</RCC>
