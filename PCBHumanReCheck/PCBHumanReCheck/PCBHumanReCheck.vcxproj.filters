@@ -44,6 +44,9 @@
     <Filter Include="Source Files\myDatabaseTable\myStatisticPic">
       <UniqueIdentifier>{0bdbf5de-aac9-44f8-b78a-dccf03cb0dff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\myMainWindow\pictureViewWin">
+      <UniqueIdentifier>{dfb02eb6-d746-45a1-9c7c-1d0d16a5aeed}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -73,6 +76,21 @@
     <ClCompile Include="mymainslice.cpp">
       <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
     </ClCompile>
+    <ClCompile Include="mainwingraphview.cpp">
+      <Filter>Source Files\myMainWindow\pictureViewWin</Filter>
+    </ClCompile>
+    <ClCompile Include="picviewwindow.cpp">
+      <Filter>Source Files\myMainWindow\pictureViewWin</Filter>
+    </ClCompile>
+    <ClCompile Include="imagescene.cpp">
+      <Filter>Source Files\myMainWindow\pictureViewWin</Filter>
+    </ClCompile>
+    <ClCompile Include="methods.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_iconsHuman.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mymainwindow.h">
@@ -95,6 +113,12 @@
     </QtMoc>
     <QtMoc Include="mymainslice.h">
       <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
+    </QtMoc>
+    <QtMoc Include="mainwingraphview.h">
+      <Filter>Source Files\myMainWindow\pictureViewWin</Filter>
+    </QtMoc>
+    <QtMoc Include="picviewwindow.h">
+      <Filter>Source Files\myMainWindow\pictureViewWin</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -124,9 +148,6 @@
     <ClInclude Include="GeneratedFiles\ui_mysettingwindow.h">
       <Filter>Source Files\mySettingWindow</Filter>
     </ClInclude>
-    <ClInclude Include="parameters.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_tologin.h">
       <Filter>Source Files\toLogin</Filter>
     </ClInclude>
@@ -139,5 +160,47 @@
     <ClInclude Include="donutbreakdownchart.h">
       <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_picviewwindow.h">
+      <Filter>Source Files\myMainWindow\pictureViewWin</Filter>
+    </ClInclude>
+    <ClInclude Include="imagescene.h">
+      <Filter>Source Files\myMainWindow\pictureViewWin</Filter>
+    </ClInclude>
+    <ClInclude Include="methods.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_mydatabasetable.h">
+      <Filter>Source Files\myDatabaseTable</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="picviewwindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\images\zoomin.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\images\zoomout.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\images\view_database.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\images\setting.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\images\open.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Resources\images\login.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="Resources\iconsHuman.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

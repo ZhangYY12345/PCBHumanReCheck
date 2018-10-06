@@ -1,5 +1,4 @@
 #include "mymainwindow.h"
-#include "parameters.h"
 #include <QSerialPortInfo>
 #include <QMessageBox>
 #include <QSqlQuery>
@@ -45,6 +44,9 @@ myMainWindow::myMainWindow(QWidget *parent)
 	connect(ui.actionSetPath, SIGNAL(triggered()), this, SLOT(setResFilePath()));
 	connect(ui.actionOKAuto, SIGNAL(triggered()), this, SLOT(setTransferModelAuto()));
 	connect(ui.actionOKNotAuto, SIGNAL(triggered()), this, SLOT(setTransferModelNotAuto()));
+
+
+	connect(ui.setResPathBt, SIGNAL(clicked()), this, SLOT(setResFilePath()));
 }
 
 myMainWindow::~myMainWindow()

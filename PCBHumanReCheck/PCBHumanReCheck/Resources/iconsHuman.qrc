@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="images">
+    <file>images/zoomin.png</file>
+    <file>images/zoomout.png</file>
     <file>images/view_database.png</file>
     <file>images/setting.png</file>
     <file>images/open.png</file>
