@@ -35,6 +35,15 @@
     <Filter Include="Source Files\mySettingWindow">
       <UniqueIdentifier>{e6e6304f-1d53-463d-bdbf-058773cbe584}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\toLogin">
+      <UniqueIdentifier>{01e42eda-9840-49b9-bb88-78ebaf74df66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\myDatabaseTable">
+      <UniqueIdentifier>{39b94119-d2d6-4b64-8bab-8a5b9796a913}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\myDatabaseTable\myStatisticPic">
+      <UniqueIdentifier>{0bdbf5de-aac9-44f8-b78a-dccf03cb0dff}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -46,6 +55,24 @@
     <ClCompile Include="mysettingwindow.cpp">
       <Filter>Source Files\mySettingWindow</Filter>
     </ClCompile>
+    <ClCompile Include="tologin.cpp">
+      <Filter>Source Files\toLogin</Filter>
+    </ClCompile>
+    <ClCompile Include="tochangepassword.cpp">
+      <Filter>Source Files\toLogin</Filter>
+    </ClCompile>
+    <ClCompile Include="mydatabasetable.cpp">
+      <Filter>Source Files\myDatabaseTable</Filter>
+    </ClCompile>
+    <ClCompile Include="mystatisticpic.cpp">
+      <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
+    </ClCompile>
+    <ClCompile Include="donutbreakdownchart.cpp">
+      <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
+    </ClCompile>
+    <ClCompile Include="mymainslice.cpp">
+      <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mymainwindow.h">
@@ -53,6 +80,21 @@
     </QtMoc>
     <QtMoc Include="mysettingwindow.h">
       <Filter>Source Files\mySettingWindow</Filter>
+    </QtMoc>
+    <QtMoc Include="tologin.h">
+      <Filter>Source Files\toLogin</Filter>
+    </QtMoc>
+    <QtMoc Include="tochangepassword.h">
+      <Filter>Source Files\toLogin</Filter>
+    </QtMoc>
+    <QtMoc Include="mydatabasetable.h">
+      <Filter>Source Files\myDatabaseTable</Filter>
+    </QtMoc>
+    <QtMoc Include="mystatisticpic.h">
+      <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
+    </QtMoc>
+    <QtMoc Include="mymainslice.h">
+      <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -62,13 +104,40 @@
     <CustomBuild Include="mysettingwindow.ui">
       <Filter>Form Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="tologin.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="tochangepassword.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="mydatabasetable.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="mystatisticpic.ui">
+      <Filter>Form Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GeneratedFiles\ui_mymainwindow.h">
-      <Filter>Generated Files</Filter>
+      <Filter>Source Files\myMainWindow</Filter>
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_mysettingwindow.h">
-      <Filter>Generated Files</Filter>
+      <Filter>Source Files\mySettingWindow</Filter>
+    </ClInclude>
+    <ClInclude Include="parameters.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_tologin.h">
+      <Filter>Source Files\toLogin</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_tochangepassword.h">
+      <Filter>Source Files\toLogin</Filter>
+    </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_mystatisticpic.h">
+      <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
+    </ClInclude>
+    <ClInclude Include="donutbreakdownchart.h">
+      <Filter>Source Files\myDatabaseTable\myStatisticPic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

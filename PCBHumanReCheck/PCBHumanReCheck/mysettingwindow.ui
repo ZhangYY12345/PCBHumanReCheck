@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>872</width>
+    <height>368</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="resultPathLab">
+      <widget class="QLabel" name="setDatabase">
        <property name="font">
         <font>
          <family>微软雅黑</family>
@@ -52,7 +52,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="setResPathBt">
+      <widget class="QToolButton" name="setDatabaseBt">
        <property name="text">
         <string>...</string>
        </property>
@@ -82,7 +82,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="resultPathLab_2">
+      <widget class="QLabel" name="setResPath">
        <property name="font">
         <font>
          <family>微软雅黑</family>
@@ -98,7 +98,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QToolButton" name="setResPathBt_2">
+      <widget class="QToolButton" name="setResPathBt">
        <property name="text">
         <string>...</string>
        </property>
@@ -128,11 +128,37 @@
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton">
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="setModelBt">
        <property name="text">
         <string>transfer the OK results without human check</string>
        </property>
       </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
      </item>
     </layout>
    </item>
