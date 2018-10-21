@@ -1,26 +1,34 @@
 #include "mysettingwindow.h"
 #include <QFiledialog>
+#include <QSqlDatabase>
+#include <QMessageBox>
 
 mySettingWindow::mySettingWindow(QWidget *parent)
 	: QWidget(parent)
 {
 	ui.setupUi(this);
 
-	connect(ui.setDatabaseBt, SIGNAL(clicked()), this, SLOT(setDatabaseFile()));
-	connect(ui.setResPathBt, SIGNAL(clicked()), this, SLOT(setResFilePath()));
+	connect(ui.setDatabaseAutoBt, SIGNAL(clicked()), this, SLOT(setDatabaseAutoFile()));
+	connect(ui.setDatabaseManuBt, SIGNAL(clicked()), this, SLOT(setDatabaseManuFile()));
+	connect(ui.setResToGetPathBt, SIGNAL(clicked()), this, SLOT(setResFileToGetPath()));
+	connect(ui.setResToMESPathBt, SIGNAL(clicked()), this, SLOT(setResFileToMESPath()));
 	connect(ui.setModelBt, SIGNAL(clicked()), this, SLOT(setTransferModel()));
 }
 
-mySettingWindow::mySettingWindow(QString databaseName, QString resFilePath, bool okModel, QWidget* parent)
+mySettingWindow::mySettingWindow(QString databaseName, QString databaseManuName, QString resFileToGetPath, QString resFileToMESPath, bool okModel, QWidget* parent)
 {
 	ui.setupUi(this);
 
-	ui.setDatabase->setText(databaseName);
-	ui.setResPath->setText(resFilePath);
+	ui.setDatabaseAuto->setText(databaseName);
+	ui.setDatabaseManu->setText(databaseManuName);
+	ui.setResToGetPath->setText(resFileToGetPath);
+	ui.setResToMESPath->setText(resFileToMESPath);
 	ui.setModelBt->setChecked(okModel);
 
-	connect(ui.setDatabaseBt, SIGNAL(clicked()), this, SLOT(setDatabaseFile()));
-	connect(ui.setResPathBt, SIGNAL(clicked()), this, SLOT(setResFilePath()));
+	connect(ui.setDatabaseAutoBt, SIGNAL(clicked()), this, SLOT(setDatabaseAutoFile()));
+	connect(ui.setDatabaseManuBt, SIGNAL(clicked()), this, SLOT(setDatabaseManuFile()));
+	connect(ui.setResToGetPathBt, SIGNAL(clicked()), this, SLOT(setResFileToGetPath()));
+	connect(ui.setResToMESPathBt, SIGNAL(clicked()), this, SLOT(setResFileToMESPath()));
 	connect(ui.setModelBt, SIGNAL(clicked()), this, SLOT(setTransferModel()));
 }
 
@@ -28,16 +36,28 @@ mySettingWindow::~mySettingWindow()
 {
 }
 
-void mySettingWindow::updateDatabaseFile(QString newName)
+void mySettingWindow::updateDatabaseAutoFile(QString newName)
 {
-	databaseName = newName;
-	ui.setDatabase->setText(databaseName);
+	databaseAutoName = newName;
+	ui.setDatabaseAuto->setText(databaseAutoName);
 }
 
-void mySettingWindow::updateResFilePath(QString newNames)
+void mySettingWindow::updateDatabaseManuFile(QString newName)
 {
-	resFilePath = newNames;
-	ui.setResPath->setText(resFilePath);
+	databaseManuName = newName;
+	ui.setDatabaseManu->setText(databaseManuName);
+}
+
+void mySettingWindow::updateResFileToGetPath(QString newName)
+{
+	resFileToGetPath = newName;
+	ui.setResToGetPath->setText(resFileToGetPath);
+}
+
+void mySettingWindow::updateResFileToMESPath(QString newNames)
+{
+	resFileToMESPath = newNames;
+	ui.setResToMESPath->setText(resFileToMESPath);
 }
 
 void mySettingWindow::updateOKModel(bool okModel)
@@ -48,18 +68,67 @@ void mySettingWindow::updateOKModel(bool okModel)
 	connect(ui.setModelBt, SIGNAL(clicked()), this, SLOT(setTransferModel()));
 }
 
-void mySettingWindow::setDatabaseFile()
+void mySettingWindow::setDatabaseAutoFile()
 {
-	databaseName = QFileDialog::getExistingDirectory(this);
-	ui.setDatabase->setText(databaseName);
-	emit newDatabaseName(databaseName);
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Load Database"), ".", tr("Settings (*.db)"));
+	if (fileName.isEmpty())
+	{
+		return;
+	}
+
+	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "RESULT_DB");
+	db.setDatabaseName(fileName);
+
+	if (!db.open())
+	{
+		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		return;
+	}
+	db.close();
+	QSqlDatabase::removeDatabase("RESULT_DB");
+
+	databaseAutoName = fileName;
+	ui.setDatabaseAuto->setText(databaseAutoName);
+	emit newDatabaseAutoName(databaseAutoName);
 }
 
-void mySettingWindow::setResFilePath()
+void mySettingWindow::setDatabaseManuFile()
 {
-	resFilePath = QFileDialog::getExistingDirectory(this);
-	ui.setResPath->setText(resFilePath);
-	emit newResFilePath(resFilePath);
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Load Database"), ".", tr("Settings (*.db)"));
+	if (fileName.isEmpty())
+	{
+		return;
+	}
+
+	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "RESULT_DB");
+	db.setDatabaseName(fileName);
+
+	if (!db.open())
+	{
+		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		return;
+	}
+	db.close();
+	QSqlDatabase::removeDatabase("RESULT_DB");
+
+	databaseManuName = fileName;
+	ui.setDatabaseManu->setText(databaseManuName);
+	emit newDatabaseManuName(databaseManuName);
+
+}
+
+void mySettingWindow::setResFileToGetPath()
+{
+	resFileToGetPath = QFileDialog::getExistingDirectory(this);
+	ui.setResToGetPath->setText(resFileToGetPath);
+	emit newResFileToGetPath(resFileToGetPath);
+}
+
+void mySettingWindow::setResFileToMESPath()
+{
+	resFileToMESPath = QFileDialog::getExistingDirectory(this);
+	ui.setResToMESPath->setText(resFileToMESPath);
+	emit newResFileToMESPath(resFileToMESPath);
 }
 
 void mySettingWindow::setTransferModel()
