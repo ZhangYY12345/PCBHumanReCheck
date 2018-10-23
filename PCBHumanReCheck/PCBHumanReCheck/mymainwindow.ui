@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1309</width>
-    <height>481</height>
+    <height>1016</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,6 +19,22 @@
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <layout class="QGridLayout" name="gridLayout">
+        <item row="2" column="0">
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="1">
+         <widget class="PicViewWindow" name="imgShowWin" native="true"/>
+        </item>
         <item row="1" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
@@ -82,6 +98,12 @@
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
            <widget class="QLabel" name="label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="font">
              <font>
               <family>微软雅黑</family>
@@ -89,58 +111,56 @@
              </font>
             </property>
             <property name="text">
-             <string>Serial Port</string>
+             <string>onePCBID：</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="avalSerialPorts"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="serialportButton">
+           <widget class="QLineEdit" name="onePCBID">
             <property name="font">
              <font>
               <family>微软雅黑</family>
               <pointsize>10</pointsize>
              </font>
             </property>
-            <property name="text">
-             <string>Open Serial Port</string>
+            <property name="acceptDrops">
+             <bool>false</bool>
+            </property>
+            <property name="frame">
+             <bool>false</bool>
             </property>
            </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
          </layout>
         </item>
-        <item row="2" column="0">
-         <spacer name="verticalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="2" column="1">
-         <widget class="PicViewWindow" name="imgShowWin" native="true"/>
-        </item>
        </layout>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetDefaultConstraint</enum>
+      </property>
+      <item>
+       <widget class="QTableView" name="carrierAutoResTableView">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QTableView" name="carrierManuResTableView">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -152,7 +172,7 @@
      <x>0</x>
      <y>0</y>
      <width>1309</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">

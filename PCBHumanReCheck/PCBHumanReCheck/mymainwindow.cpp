@@ -1,6 +1,5 @@
 #include "mymainwindow.h"
 #include "parameters.h"
-#include <QSerialPortInfo>
 #include <QMessageBox>
 #include <QSqlQuery>
 #include <QFileDialog>
@@ -18,35 +17,12 @@ myMainWindow::myMainWindow(QWidget *parent)
 
 	ui.setupUi(this);
 
-	const auto infos = QSerialPortInfo::availablePorts();
-	foreach(const QSerialPortInfo &info, infos)
-	{
-		QSerialPort serial;
-		serial.setPort(info);
-		if (serial.open(QIODevice::ReadWrite))
-		{
-			ui.avalSerialPorts->addItem(info.portName());
-			serial.close();
-		}
-	}
-
-	if(infos.size() == 0)
-	{
-		ui.statusBar->showMessage("No serial port for communication.Not ready for human rechecking.");
-	}
-
-	ui.avalSerialPorts->setCurrentIndex(0);
-
-	connect(ui.avalSerialPorts, SIGNAL(currentIndexChanged(int)), this, SLOT(serialPortChanged(int)));
-	connect(ui.serialportButton, SIGNAL(clicked()), this, SLOT(openSerial()));
-
 	isLogin = false;
 	ui.actionOKNotAuto->setChecked(true);
 
 	connect(ui.actLogin, SIGNAL(triggered()), this, SLOT(toLog()));
 	connect(ui.actViewDatabase, SIGNAL(triggered()), this, SLOT(showDatabaseTable()));
 	connect(ui.actSettings, SIGNAL(triggered()), this, SLOT(showSettingWin()));
-
 
 	connect(ui.actionNewDB, SIGNAL(triggered()), this, SLOT(newDatabase()));
 	connect(ui.actionSetARdb, SIGNAL(triggered()), this, SLOT(setDatabaseAuto()));
@@ -56,7 +32,7 @@ myMainWindow::myMainWindow(QWidget *parent)
 	connect(ui.actionOKAuto, SIGNAL(triggered()), this, SLOT(setTransferModelAuto()));
 	connect(ui.actionOKNotAuto, SIGNAL(triggered()), this, SLOT(setTransferModelNotAuto()));
 
-
+	connect(ui.onePCBID, SIGNAL(returnPressed()), this, SLOT(showAutoCarrierInfo()));
 	connect(ui.setResPathToMESBt, SIGNAL(clicked()), this, SLOT(setResFileToMESPath()));
 
 	connect(this, SIGNAL(readyCheck()), this, SLOT(showReadyMessage()));
@@ -64,93 +40,6 @@ myMainWindow::myMainWindow(QWidget *parent)
 
 myMainWindow::~myMainWindow()
 {
-}
-
-void myMainWindow::serialportChanged(int index)
-{
-	ui.avalSerialPorts->setCurrentIndex(index);
-}
-
-bool myMainWindow::openSerial()
-{
-	QString portName = ui.avalSerialPorts->currentText();
-	if (ui.serialportButton->text() == tr("Open Serial Port"))
-	{
-		serial = new QSerialPort();
-		serial->setPortName(portName);
-		if (serial->open(QIODevice::ReadWrite))
-		{
-			serial->setDataTerminalReady(true);
-			serial->setBaudRate(QSerialPort::Baud115200); //setting baud rate
-			serial->setDataBits(QSerialPort::Data8);
-
-			connect(serial, &QSerialPort::readyRead, this, &myMainWindow::readData);
-
-			ui.avalSerialPorts->setEnabled(false);
-			ui.serialportButton->setText(tr("Close Serial Port"));
-
-			return true;
-		}
-	}
-	else
-	{
-		serial->clear();
-		serial->close();
-		serial->deleteLater();
-
-		ui.avalSerialPorts->setEnabled(true);
-		ui.serialportButton->setText(tr("Open Serial Port"));
-		return false;
-	}
-
-	emit readyCheck();
-
-	return false;
-}
-
-bool myMainWindow::readData()
-{
-	bool isGetNewSignal = false;
-	QByteArray buf = serial->readAll();
-
-	if (signalCheck(buf))
-	{
-		if (buf == CARRIERID_TO_CHECK_SIGNAL) //若将二维码信息融入在信号中，则不需要这样的信号，而是直接从接受到的信号中分析该信号是否带有二维码信息
-		{
-		}
-		else if (signalBefore == CARRIERID_TO_CHECK_SIGNAL)
-		{
-			getCarrierID(buf); //前提，setting文件是以PCB型号命名的.xml文件，此时得到的信号是PCB型号信息/////////////notice
-		}
-	}
-	else
-	{
-		QByteArray requestData = PARDON_SIGNAL;
-		qint64 isOK = serial->write(requestData);
-
-		return isOK == signalNumByte;
-	}
-
-	signalBefore = buf;
-	return isGetNewSignal;
-}
-
-bool myMainWindow::signalCheck(QByteArray buf)
-{
-	if (!buf.isEmpty())
-	{
-		char XORCheck = buf[0];
-		for (int i = 1; i < buf.size() - 1; i++)
-		{
-			XORCheck = XORCheck ^ buf.at(i);
-		}
-
-		if (XORCheck == buf[buf.size() - 1])
-		{
-			return true;
-		}
-	}
-	return false;
 }
 
 void myMainWindow::toLog()
@@ -227,7 +116,7 @@ int myMainWindow::showDatabaseTable()
 	}
 
 	QSqlQuery query(dbOfManuRes);
-	query.exec("create table checkRes (PCBID varchar(30) primary key, "
+	query.exec("create table reCheckRes (PCBID varchar(30) primary key, "
 		"CarrierID varchar(30), Date varchar(20), Time varchar(20), Checker varchar(10), Device varchar(10), Result varchar(30))");
 
 	databaseView = new myDatabaseTable(dbOfManuRes);
@@ -256,7 +145,7 @@ void myMainWindow::newDatabase()
 
 	if (!dbOfManuRes.isValid())
 	{
-		dbOfManuRes = QSqlDatabase::addDatabase("QSQLITE", "RESULT_DB");
+		dbOfManuRes = QSqlDatabase::addDatabase("QSQLITE", "AUTO_RESULT_DB");
 	}
 
 	dbOfManuRes.setDatabaseName(fileName);
@@ -479,20 +368,72 @@ void myMainWindow::updateOKModel(bool isOKTransfer)
 	emit readyCheck();
 }
 
+void myMainWindow::showAutoCarrierInfo()
+{
+	QString onePCBId = ui.onePCBID->text();
+	QString carrierID = getCarrierID(onePCBId);
+
+	if (!dbOfAutoRes.isValid())
+	{
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Settings (*.db)"));
+		if (fileName.isEmpty())
+		{
+			return;
+		}
+
+		dbOfAutoRes = QSqlDatabase::addDatabase("QSQLITE", "AUTO_RESULT_DB");
+		dbOfAutoRes.setDatabaseName(fileName);
+
+		if (!dbOfAutoRes.open())
+		{
+			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		}
+		databaseAutoName = fileName;
+		if (settingWindow != Q_NULLPTR)
+		{
+			settingWindow->updateDatabaseAutoFile(fileName);
+		}
+	}
+
+	if (modelAutoResQuery == Q_NULLPTR)
+	{
+		modelAutoResQuery = new QSqlQueryModel;
+		modelAutoResQuery->setQuery("select PCBID,REGIONID,Result,ExtraErrorNumF,MissErrorNumF,ExtraErrorNumB,MissErrorNumB from checkRes where CarrierID = '" + carrierID + "'", dbOfAutoRes);
+		modelAutoResQuery->setHeaderData(0, Qt::Horizontal, tr("PCBID"));
+		modelAutoResQuery->setHeaderData(1, Qt::Horizontal, tr("RegionID"));
+		modelAutoResQuery->setHeaderData(2, Qt::Horizontal, tr("Result"));
+		modelAutoResQuery->setHeaderData(3, Qt::Horizontal, tr("ExtraErrorNumF"));
+		modelAutoResQuery->setHeaderData(4, Qt::Horizontal, tr("MissErrorNumF"));
+		modelAutoResQuery->setHeaderData(5, Qt::Horizontal, tr("ExtraErrorNumB"));
+		modelAutoResQuery->setHeaderData(6, Qt::Horizontal, tr("MissErrorNumB"));
+
+		ui.carrierAutoResTableView->setModel(modelAutoResQuery);
+	}
+	else
+	{
+		modelAutoResQuery->setQuery("select PCBID,REGIONID,Result,ExtraErrorNumF,MissErrorNumF,ExtraErrorNumB,MissErrorNumB from checkRes where CarrierID = '" + carrierID + "'", dbOfAutoRes);
+		modelAutoResQuery->setHeaderData(0, Qt::Horizontal, tr("PCBID"));
+		modelAutoResQuery->setHeaderData(1, Qt::Horizontal, tr("RegionID"));
+		modelAutoResQuery->setHeaderData(2, Qt::Horizontal, tr("Result"));
+		modelAutoResQuery->setHeaderData(3, Qt::Horizontal, tr("ExtraErrorNumF"));
+		modelAutoResQuery->setHeaderData(4, Qt::Horizontal, tr("MissErrorNumF"));
+		modelAutoResQuery->setHeaderData(5, Qt::Horizontal, tr("ExtraErrorNumB"));
+		modelAutoResQuery->setHeaderData(6, Qt::Horizontal, tr("MissErrorNumB"));
+	}
+}
+
 void myMainWindow::showReadyMessage()
 {
-	if(isLogin && !resFileToMESPath.isEmpty() && !databaseManuName.isEmpty() && !databaseAutoName.isEmpty() && ui.serialportButton->text() == tr("Close Serial Port"))
+	if(isLogin && !resFileToMESPath.isEmpty() && !databaseManuName.isEmpty() && !databaseAutoName.isEmpty() && ui.onePCBID->text().isEmpty())
 	{
 		if(OKModel)
 		{
-			ui.statusBar->showMessage("Ready for human rechecking.OK results are not rechecked.");
+			ui.statusBar->showMessage("Ready for human rechecking.OK results are not rechecked.Please put the cursor in the onePCBID label for ID information.");
 		}
 		else
 		{
-			ui.statusBar->showMessage("Ready for human rechecking.OK results are also rechecked.");
+			ui.statusBar->showMessage("Ready for human rechecking.OK results are also rechecked.Please put the cursor in the onePCBID label for ID information.");
 		}
-		QByteArray requestData = ASK_FOR_NEW_CARRIERID_SIGNAL;
-		qint64 isOK = serial->write(requestData);
 	}
 	else
 	{
@@ -500,20 +441,53 @@ void myMainWindow::showReadyMessage()
 	}
 }
 
-void myMainWindow::getCarrierID(QByteArray onePCBIDSignal)
+QString myMainWindow::getCarrierID(QString onePCBID)
 {
-	QString onePCBID = onePCBIDSignal;
+	QString carrierID = "";
+	QString checkDate = "";
+	QString checkTime = "";
 
+	if (!dbOfAutoRes.isValid())
+	{
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Settings (*.db)"));
+		if (fileName.isEmpty())
+		{
+			return carrierID;
+		}
+
+		dbOfAutoRes = QSqlDatabase::addDatabase("QSQLITE", "AUTO_RESULT_DB");
+		dbOfAutoRes.setDatabaseName(fileName);
+
+		if (!dbOfAutoRes.open())
+		{
+			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		}
+
+		databaseAutoName = fileName;
+		if (settingWindow != Q_NULLPTR)
+		{
+			settingWindow->updateDatabaseAutoFile(fileName);
+		}
+	}
+
+	QSqlQuery query(dbOfAutoRes);
+	query.exec("create table checkRes (PCBID varchar(30) primary key, "
+		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), "
+		"Result varchar(30), ExtraErrorNumF varchar(10), MissErrorNumF varchar(10), "
+		"ExtraErrorNumB varchar(10), MissErrorNumB varchar(10), resImgPath varchar(100))");
+	query.exec("select * from checkRes where PCBID = '" + onePCBID + "'");
+
+	if(query.next())
+	{
+		carrierID = query.value(1).toString();
+		checkDate = query.value(3).toString();
+		checkTime = query.value(4).toString();
+	}
+
+	return carrierID;
 }
 
 void myMainWindow::closeEvent(QCloseEvent* event)
 {
-	if (this->serial != Q_NULLPTR)
-	{
-		if (this->serial->isOpen())
-		{
-			serial->clear();
-			serial->close();
-		}
-	}
 }
+

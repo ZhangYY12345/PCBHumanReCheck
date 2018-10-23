@@ -2,7 +2,6 @@
 
 #include <QMainWindow>
 #include "ui_mymainwindow.h"
-#include <QSerialPort>
 #include "tologin.h"
 #include "mysettingwindow.h"
 #include "mydatabasetable.h"
@@ -19,12 +18,6 @@ public:
 	void readyCheck();
 
 	private slots:
-	void serialportChanged(int index);
-	bool openSerial();
-
-	bool readData();
-	bool signalCheck(QByteArray buf);
-
 	void toLog();
 	void beLogged();
 	int showDatabaseTable();	//only can show the database for human rechecking
@@ -46,20 +39,20 @@ public:
 	void updateResFileToMESPath(QString);
 	void updateOKModel(bool);
 
+	void showAutoCarrierInfo();
+
 	void showReadyMessage();
 
 private:
 	Ui::myMainWindow ui;
-
-	QSerialPort* serial = Q_NULLPTR;
-	QByteArray signalBefore;
-	QByteArray onePCBIDSignal;
 
 	toLogin* loginWin = Q_NULLPTR;
 
 	myDatabaseTable* databaseView = Q_NULLPTR;
 	QSqlDatabase dbOfManuRes;
 	QSqlDatabase dbOfAutoRes;
+
+	QSqlQueryModel* modelAutoResQuery = Q_NULLPTR;
 
 	mySettingWindow* settingWindow = Q_NULLPTR;
 
@@ -70,8 +63,7 @@ private:
 	bool OKModel;
 	bool isLogin;
 
-	void getCarrierID(QByteArray onePCBIDSignal);
-
+	QString getCarrierID(QString onePCBID);
 protected:
 	void closeEvent(QCloseEvent* event) override;
 };
