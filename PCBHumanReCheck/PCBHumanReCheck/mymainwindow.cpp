@@ -4,6 +4,7 @@
 #include <QSqlQuery>
 #include <QFileDialog>
 
+extern std::map<std::string, REGION_IN_CARRIER> g_viewName_Reverse;
 
 myMainWindow::myMainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -371,7 +372,12 @@ void myMainWindow::updateOKModel(bool isOKTransfer)
 void myMainWindow::showAutoCarrierInfo()
 {
 	QString onePCBId = ui.onePCBID->text();
-	QString carrierID = getCarrierID(onePCBId);
+	QString carrierID;
+	QString carrierCheckDate;
+	QString carrierCheckTime;
+
+	getCarrierID_Time(onePCBId, carrierID, carrierCheckDate, carrierCheckTime);
+	getCarrierResInfo(carrierID, carrierCheckDate, carrierCheckTime);
 
 	if (!dbOfAutoRes.isValid())
 	{
@@ -397,7 +403,7 @@ void myMainWindow::showAutoCarrierInfo()
 
 	if (modelAutoResQuery == Q_NULLPTR)
 	{
-		modelAutoResQuery = new QSqlQueryModel;
+		modelAutoResQuery = new QSqlQueryModel();
 		modelAutoResQuery->setQuery("select PCBID,REGIONID,Result,ExtraErrorNumF,MissErrorNumF,ExtraErrorNumB,MissErrorNumB from checkRes where CarrierID = '" + carrierID + "'", dbOfAutoRes);
 		modelAutoResQuery->setHeaderData(0, Qt::Horizontal, tr("PCBID"));
 		modelAutoResQuery->setHeaderData(1, Qt::Horizontal, tr("RegionID"));
@@ -441,18 +447,68 @@ void myMainWindow::showReadyMessage()
 	}
 }
 
-QString myMainWindow::getCarrierID(QString onePCBID)
+void myMainWindow::getCarrierResInfo(QString carrierId, QString checkDate, QString checkTime)
 {
-	QString carrierID = "";
-	QString checkDate = "";
-	QString checkTime = "";
-
 	if (!dbOfAutoRes.isValid())
 	{
 		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Settings (*.db)"));
 		if (fileName.isEmpty())
 		{
-			return carrierID;
+			return;
+		}
+
+		dbOfAutoRes = QSqlDatabase::addDatabase("QSQLITE", "AUTO_RESULT_DB");
+		dbOfAutoRes.setDatabaseName(fileName);
+
+		if (!dbOfAutoRes.open())
+		{
+			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		}
+
+		databaseAutoName = fileName;
+		if (settingWindow != Q_NULLPTR)
+		{
+			settingWindow->updateDatabaseAutoFile(fileName);
+		}
+	}
+
+	QSqlQuery query(dbOfAutoRes);
+	query.exec("create table checkRes (PCBID varchar(30) primary key, "
+		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), "
+		"Result varchar(30), ExtraErrorNumF varchar(10), MissErrorNumF varchar(10), "
+		"ExtraErrorNumB varchar(10), MissErrorNumB varchar(10), resImgPath varchar(100))");
+	query.exec("select * from checkRes where CarrierID = '" + carrierId + "'");
+
+	std::string resImgPathBSide;
+
+	while (query.next())
+	{
+		QString viewId = query.value(2).toString();
+
+		curOnePCBRes.pcbID = query.value(0).toString().toStdString();
+		std::string resImgPath = query.value(10).toString().toStdString();
+		std::string resImgPathFSide = resImgPath.substr(0, resImgPath.find_first_of('\n'));
+		resImgPathBSide = resImgPath.substr(resImgPath.find_first_of('\n') + 1);
+		curOnePCBRes.imgResFSide = cv::imread(resImgPathFSide);
+		curOnePCBRes.imgResBSide = cv::imread(resImgPathBSide);
+
+		curCarrierRes.setOnePCBResAuto(g_viewName_Reverse[viewId.toStdString()], curOnePCBRes);
+
+		curOnePCBRes.clearInfo();
+	}
+
+	std::string errContourFilePath = resImgPathBSide.substr(0, resImgPathBSide.find_last_of('/') + 1) + "/" + carrierId.toStdString() + "_" + checkDate.toStdString() + "_" + checkTime.toStdString() + ".xml";
+	curCarrierRes.setErrContoursAuto(errContourFilePath);
+}
+
+void myMainWindow::getCarrierID_Time(QString onePCBID, QString& carrierId, QString& checkDate, QString& checkTime)
+{
+	if (!dbOfAutoRes.isValid())
+	{
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Settings (*.db)"));
+		if (fileName.isEmpty())
+		{
+			return;
 		}
 
 		dbOfAutoRes = QSqlDatabase::addDatabase("QSQLITE", "AUTO_RESULT_DB");
@@ -479,12 +535,10 @@ QString myMainWindow::getCarrierID(QString onePCBID)
 
 	if(query.next())
 	{
-		carrierID = query.value(1).toString();
+		carrierId = query.value(1).toString();
 		checkDate = query.value(3).toString();
 		checkTime = query.value(4).toString();
 	}
-
-	return carrierID;
 }
 
 void myMainWindow::closeEvent(QCloseEvent* event)

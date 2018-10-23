@@ -5,6 +5,7 @@
 #include "tologin.h"
 #include "mysettingwindow.h"
 #include "mydatabasetable.h"
+#include "parameters.h"
 
 class myMainWindow : public QMainWindow
 {
@@ -63,7 +64,12 @@ private:
 	bool OKModel;
 	bool isLogin;
 
-	QString getCarrierID(QString onePCBID);
+	onePCBResInfo curOnePCBRes;
+	CarrierResInfo curCarrierRes;
+	onePCBResInfo curOnePCBResManu;
+
+	void getCarrierResInfo(QString carrierId, QString checkDate, QString checkTime);
+	void getCarrierID_Time(QString onePCBID, QString& carrierId, QString& checkDate, QString& checkTime);
 protected:
 	void closeEvent(QCloseEvent* event) override;
 };

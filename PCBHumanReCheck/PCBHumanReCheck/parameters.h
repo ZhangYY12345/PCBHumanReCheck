@@ -17,6 +17,11 @@
 #define EXTRA_COATING_ERROR_COLOR			cv::Scalar(	19,	117,	235)
 #define MISS_COATING_ERROR_COLOR			cv::Scalar(	135,	89,	249)
 
+//
+#define EXTRA_COATING_ERROR_QCOLOR_AUTO		QColor(	255,	0,	0) //RGB
+#define MISS_COATING_ERROR_QCOLOR_AUTO		QColor(	245,	252,	14)
+#define EXTRA_COATING_ERROR_QCOLOR			QColor(	235,	117,	19)
+#define MISS_COATING_ERROR_QCOLOR			QColor(	249,	89,	135)
 
 //
 enum REGION_IN_CARRIER
@@ -31,6 +36,14 @@ enum REGION_IN_CARRIER
 	VIEW_42
 };
 
+
+enum ERR_CONTOUR_NAME
+{
+	EXTRA_ERR,
+	MISS_ERR,
+	NULL_ERR
+};
+
 //the 
 class onePCBResInfo
 {
@@ -38,27 +51,9 @@ public:
 	onePCBResInfo();
 	~onePCBResInfo();
 
-	std::string getPCBID();
-	void getImgRes(cv::Mat& imgResF, cv::Mat& imgResB);
-	cv::Mat getImgResFSide();
-	cv::Mat getImgResBSide();
-	int getErrorNumExtra();
-	int getErrorNumMiss();
-	std::vector<std::vector<cv::Point>> getErrorContoursExtraF();
-	std::vector<std::vector<cv::Point>> getErrorContoursMissF();
-	std::vector<std::vector<cv::Point>> getErrorContoursExtraB();
-	std::vector<std::vector<cv::Point>> getErrorContoursMissB();
-	bool isResModified() const;
+	void clearInfo();
+	onePCBResInfo& operator = (onePCBResInfo& obj);
 
-	void setErrorNumExtra(int numberErr);
-	void setErrorNumMiss(int numberErr);
-	void setErrorContoursExtraF(std::vector<std::vector<cv::Point>> contoursErr);
-	void setErrorContoursMissF(std::vector<std::vector<cv::Point>> contoursErr);
-	void setErrorContoursExtraB(std::vector<std::vector<cv::Point>> contoursErr);
-	void setErrorContoursMissB(std::vector<std::vector<cv::Point>> contoursErr);
-	void beenModified();
-
-private:
 	std::string pcbID;
 	cv::Mat imgResFSide;
 	cv::Mat imgResBSide;
@@ -74,10 +69,29 @@ private:
 //human recheck process checking one carrier's result at one time  //todo:
 class CarrierResInfo
 {
+public:
 	CarrierResInfo();
 	~CarrierResInfo();
 
-	void getErrContours(std::string filePathXML);
+	void clearAllInfo();
+	bool isInCarrierReChecking();
+
+	//resAuto
+	void setViewNum(int numView);
+	void setErrContoursAuto(std::string filePathXML);
+
+	void setOnePCBResAuto(REGION_IN_CARRIER viewID, onePCBResInfo oneRes);
+	onePCBResInfo getOnePCBResAuto(REGION_IN_CARRIER viewID);
+	std::map<REGION_IN_CARRIER, onePCBResInfo> getCarrierResAuto();
+
+	//resManu
+	void setOnePCBResManu(REGION_IN_CARRIER viewID, onePCBResInfo oneRes);
+	onePCBResInfo getOnePCBResManu(REGION_IN_CARRIER viewID);
+
+	void setCarrierResManu(std::map<REGION_IN_CARRIER, onePCBResInfo> carrierRes);
+	std::map<REGION_IN_CARRIER, onePCBResInfo> getCarrierResManu();
+
+	CarrierResInfo& operator = (CarrierResInfo& obj);
 private:
 	int viewNum;
 	std::string curCarrierID;

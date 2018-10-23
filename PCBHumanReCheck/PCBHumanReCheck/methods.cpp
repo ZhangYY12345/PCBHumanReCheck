@@ -42,6 +42,22 @@ QImage cvMat2QImage(const cv::Mat inMat)
 	return QImage();
 }
 
+QPointF cvPoint2QPointF(cv::Point point)
+{
+	QPointF qPoint = QPointF(point.x, point.y);
+	return qPoint;
+}
+
+QVector<QPointF> StdVectorcvPoint2QVectorQPointF(std::vector<cv::Point> stdVecPts)
+{
+	QVector<QPointF> QVecPts;
+	for (std::vector<cv::Point>::iterator iter = stdVecPts.begin(); iter != stdVecPts.end(); ++iter) {
+		QVecPts.push_back(cvPoint2QPointF(*iter));
+	}
+	return QVecPts;
+}
+
+
 /**
  * \brief	trying to use the color for drawing contours to recover the error areas from the result image,
  *			but this way is not work as the color is not excatly the value we used for drawing 
