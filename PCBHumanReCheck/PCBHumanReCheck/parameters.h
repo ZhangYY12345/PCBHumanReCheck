@@ -51,7 +51,9 @@ public:
 	onePCBResInfo();
 	~onePCBResInfo();
 
+	bool empty();
 	void clearInfo();
+	void erase(int sideInfo, ERR_CONTOUR_NAME errNameInfo, std::vector<cv::Point> pts);
 	onePCBResInfo& operator = (onePCBResInfo& obj);
 
 	std::string pcbID;
@@ -76,19 +78,25 @@ public:
 	void clearAllInfo();
 	bool isInCarrierReChecking();
 
-	//resAuto
 	void setViewNum(int numView);
+
+	//resAuto
 	void setErrContoursAuto(std::string filePathXML);
 
 	void setOnePCBResAuto(REGION_IN_CARRIER viewID, onePCBResInfo oneRes);
+	void getOnePCBResAuto(REGION_IN_CARRIER viewID, onePCBResInfo& oneRes);
 	onePCBResInfo getOnePCBResAuto(REGION_IN_CARRIER viewID);
+	void getCarrierResAuto(std::map<REGION_IN_CARRIER, onePCBResInfo>& allRes);
 	std::map<REGION_IN_CARRIER, onePCBResInfo> getCarrierResAuto();
+
 
 	//resManu
 	void setOnePCBResManu(REGION_IN_CARRIER viewID, onePCBResInfo oneRes);
+	void getOnePCBResManu(REGION_IN_CARRIER viewID, onePCBResInfo& oneRes);
 	onePCBResInfo getOnePCBResManu(REGION_IN_CARRIER viewID);
 
 	void setCarrierResManu(std::map<REGION_IN_CARRIER, onePCBResInfo> carrierRes);
+	void getCarrierResManu(std::map<REGION_IN_CARRIER, onePCBResInfo>& allRes);
 	std::map<REGION_IN_CARRIER, onePCBResInfo> getCarrierResManu();
 
 	CarrierResInfo& operator = (CarrierResInfo& obj);

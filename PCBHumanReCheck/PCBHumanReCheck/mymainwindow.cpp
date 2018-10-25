@@ -3,7 +3,10 @@
 #include <QMessageBox>
 #include <QSqlQuery>
 #include <QFileDialog>
+#include <QNetworkInterface>
 
+extern REGION_IN_CARRIER g_Views[8];
+extern std::map<REGION_IN_CARRIER, std::string> g_viewName;
 extern std::map<std::string, REGION_IN_CARRIER> g_viewName_Reverse;
 
 myMainWindow::myMainWindow(QWidget *parent)
@@ -15,10 +18,11 @@ myMainWindow::myMainWindow(QWidget *parent)
 	resFileToGetPath = "";
 	OKModel = false;
 	isLogin = false;
+	userName = "";
+
 
 	ui.setupUi(this);
 
-	isLogin = false;
 	ui.actionOKNotAuto->setChecked(true);
 
 	connect(ui.actLogin, SIGNAL(triggered()), this, SLOT(toLog()));
@@ -35,8 +39,14 @@ myMainWindow::myMainWindow(QWidget *parent)
 
 	connect(ui.onePCBID, SIGNAL(returnPressed()), this, SLOT(showAutoCarrierInfo()));
 	connect(ui.setResPathToMESBt, SIGNAL(clicked()), this, SLOT(setResFileToMESPath()));
+	connect(ui.widthErrCon, SIGNAL(currentIndexChanged(QString)), this, SLOT(refreshErrConWidth(QString)));
+
+	connect(ui.viewIDComBox, SIGNAL(currentIndextChanged(QString)), this, SLOT(resViewUpdate(QString)));
+	connect(ui.viewFBSide, SIGNAL(currentIndexChanged(int)), this, SLOT(resViewSideUpdate(int)));
 
 	connect(this, SIGNAL(readyCheck()), this, SLOT(showReadyMessage()));
+
+	ui.onePCBID->setEnabled(false);
 }
 
 myMainWindow::~myMainWindow()
@@ -73,13 +83,14 @@ void myMainWindow::toLog()
 	else
 	{
 		loginWin = new toLogin;
-		connect(loginWin, SIGNAL(okToLogin()), this, SLOT(beLogged()));
+		connect(loginWin, SIGNAL(okToLogin(QString)), this, SLOT(beLogged(QString)));
 		loginWin->show();
 	}
 }
 
-void myMainWindow::beLogged()
+void myMainWindow::beLogged(QString nameUser)
 {
+	userName = nameUser;
 	isLogin = true;
 	ui.actLogin->setChecked(true);
 
@@ -94,13 +105,18 @@ int myMainWindow::showDatabaseTable()
 {
 	if (!dbOfManuRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Settings (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Databases (*.db)"));
 		if (fileName.isEmpty())
 		{
 			return -1;
 		}
+		if(fileName.indexOf("userdata.db") != -1)
+		{
+			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+			return -1;
+		}
 
-		dbOfManuRes = QSqlDatabase::addDatabase("QSQLITE", "RESULT_DB");
+		dbOfManuRes = QSqlDatabase::addDatabase("QSQLITE", "MANU_RESULT_DB");
 		dbOfManuRes.setDatabaseName(fileName);
 
 		if (!dbOfManuRes.open())
@@ -118,7 +134,9 @@ int myMainWindow::showDatabaseTable()
 
 	QSqlQuery query(dbOfManuRes);
 	query.exec("create table reCheckRes (PCBID varchar(30) primary key, "
-		"CarrierID varchar(30), Date varchar(20), Time varchar(20), Checker varchar(10), Device varchar(10), Result varchar(30))");
+		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), "
+		"Result varchar(30), ExtraErrorNumF varchar(10), MissErrorNumF varchar(10), "
+		"ExtraErrorNumB varchar(10), MissErrorNumB varchar(10), resImgPath varchar(100))");
 
 	databaseView = new myDatabaseTable(dbOfManuRes);
 	databaseView->show();
@@ -138,15 +156,20 @@ void myMainWindow::showSettingWin()
 
 void myMainWindow::newDatabase()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Create new Manual ReCheckRes Database"), ".", tr("Settings (*.db);"));
+	QString fileName = QFileDialog::getSaveFileName(this, tr("Create new Manual ReCheckRes Database"), ".", tr("Databases (*.db);"));
 	if (fileName.isEmpty())
 	{
+		return;
+	}
+	if (fileName.indexOf("userdata.db") != -1)
+	{
+		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
 		return;
 	}
 
 	if (!dbOfManuRes.isValid())
 	{
-		dbOfManuRes = QSqlDatabase::addDatabase("QSQLITE", "AUTO_RESULT_DB");
+		dbOfManuRes = QSqlDatabase::addDatabase("QSQLITE", "MANU_RESULT_DB");
 	}
 
 	dbOfManuRes.setDatabaseName(fileName);
@@ -160,16 +183,21 @@ void myMainWindow::newDatabase()
 	databaseManuName = fileName;
 	if (settingWindow != Q_NULLPTR)
 	{
-		settingWindow->updateDatabaseAutoFile(fileName);
+		settingWindow->updateDatabaseManuFile(fileName);
 	}
 	emit readyCheck();
 }
 
 void myMainWindow::setDatabaseAuto()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Settings (*.db)"));
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Databases (*.db)"));
 	if (fileName.isEmpty())
 	{
+		return;
+	}
+	if (fileName.indexOf("userdata.db") != -1)
+	{
+		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
 		return;
 	}
 
@@ -196,9 +224,14 @@ void myMainWindow::setDatabaseAuto()
 
 void myMainWindow::setDatabaseManu()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Settings (*.db)"));
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Databases (*.db)"));
 	if (fileName.isEmpty())
 	{
+		return;
+	}
+	if (fileName.indexOf("userdata.db") != -1)
+	{
+		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
 		return;
 	}
 
@@ -300,6 +333,11 @@ void myMainWindow::updateDatabaseAutoFile(QString fileName)
 	{
 		return;
 	}
+	if (fileName.indexOf("userdata.db") != -1)
+	{
+		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+		return;
+	}
 
 	if (!dbOfAutoRes.isValid())
 	{
@@ -322,6 +360,11 @@ void myMainWindow::updateDatabaseManuFile(QString fileName)
 {
 	if (fileName.isEmpty())
 	{
+		return;
+	}
+	if (fileName.indexOf("userdata.db") != -1)
+	{
+		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
 		return;
 	}
 
@@ -371,19 +414,27 @@ void myMainWindow::updateOKModel(bool isOKTransfer)
 
 void myMainWindow::showAutoCarrierInfo()
 {
+
+
 	QString onePCBId = ui.onePCBID->text();
 	QString carrierID;
 	QString carrierCheckDate;
-	QString carrierCheckTime;
 
-	getCarrierID_Time(onePCBId, carrierID, carrierCheckDate, carrierCheckTime);
-	getCarrierResInfo(carrierID, carrierCheckDate, carrierCheckTime);
+	getCarrierID_Date(onePCBId, carrierID, carrierCheckDate);
+	getCarrierResInfo(carrierID, carrierCheckDate);
+
+	this->carrierID = carrierID;
 
 	if (!dbOfAutoRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Settings (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Databases (*.db)"));
 		if (fileName.isEmpty())
 		{
+			return;
+		}
+		if (fileName.indexOf("userdata.db") != -1)
+		{
+			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
 			return;
 		}
 
@@ -393,6 +444,7 @@ void myMainWindow::showAutoCarrierInfo()
 		if (!dbOfAutoRes.open())
 		{
 			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			return;
 		}
 		databaseAutoName = fileName;
 		if (settingWindow != Q_NULLPTR)
@@ -428,10 +480,102 @@ void myMainWindow::showAutoCarrierInfo()
 	}
 }
 
+void myMainWindow::showManuCarrierInfo()
+{
+	if (!dbOfManuRes.isValid())
+	{
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Databases (*.db)"));
+		if (fileName.isEmpty())
+		{
+			return;
+		}
+		if (fileName.indexOf("userdata.db") != -1)
+		{
+			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+			return;
+		}
+
+		dbOfManuRes = QSqlDatabase::addDatabase("QSQLITE", "MANU_RESULT_DB");
+		dbOfManuRes.setDatabaseName(fileName);
+
+		if (!dbOfManuRes.open())
+		{
+			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			return;
+		}
+		databaseManuName = fileName;
+		if (settingWindow != Q_NULLPTR)
+		{
+			settingWindow->updateDatabaseManuFile(fileName);
+		}
+	}
+
+	if (modelManuResQuery == Q_NULLPTR)
+	{
+		modelManuResQuery = new QSqlQueryModel();
+		modelManuResQuery->setQuery("select PCBID,REGIONID,Result,ExtraErrorNumF,MissErrorNumF,ExtraErrorNumB,MissErrorNumB from reCheckRes where CarrierID = '" + carrierID + "'", dbOfManuRes);
+		modelManuResQuery->setHeaderData(0, Qt::Horizontal, tr("PCBID"));
+		modelManuResQuery->setHeaderData(1, Qt::Horizontal, tr("RegionID"));
+		modelManuResQuery->setHeaderData(2, Qt::Horizontal, tr("Result"));
+		modelManuResQuery->setHeaderData(3, Qt::Horizontal, tr("ExtraErrorNumF"));
+		modelManuResQuery->setHeaderData(4, Qt::Horizontal, tr("MissErrorNumF"));
+		modelManuResQuery->setHeaderData(5, Qt::Horizontal, tr("ExtraErrorNumB"));
+		modelManuResQuery->setHeaderData(6, Qt::Horizontal, tr("MissErrorNumB"));
+
+		ui.carrierManuResTableView->setModel(modelManuResQuery);
+	}
+	else
+	{
+		modelManuResQuery->setQuery("select PCBID,REGIONID,Result,ExtraErrorNumF,MissErrorNumF,ExtraErrorNumB,MissErrorNumB from reCheckRes where CarrierID = '" + carrierID + "'", dbOfManuRes);
+		modelManuResQuery->setHeaderData(0, Qt::Horizontal, tr("PCBID"));
+		modelManuResQuery->setHeaderData(1, Qt::Horizontal, tr("RegionID"));
+		modelManuResQuery->setHeaderData(2, Qt::Horizontal, tr("Result"));
+		modelManuResQuery->setHeaderData(3, Qt::Horizontal, tr("ExtraErrorNumF"));
+		modelManuResQuery->setHeaderData(4, Qt::Horizontal, tr("MissErrorNumF"));
+		modelManuResQuery->setHeaderData(5, Qt::Horizontal, tr("ExtraErrorNumB"));
+		modelManuResQuery->setHeaderData(6, Qt::Horizontal, tr("MissErrorNumB"));
+	}
+}
+
+void myMainWindow::resViewUpdate(QString viewID)
+{
+	curViewID = g_viewName_Reverse[viewID.toStdString()];
+	if (!curOnePCBResManu.empty())
+	{
+		ui.imgShowWin->getReCheckRes(curOnePCBResManu);
+		writeDatabaseTable_TXTFile(curOnePCBResManu);
+		curCarrierRes.setOnePCBResManu(g_viewName_Reverse[viewID.toStdString()], curOnePCBResManu);
+
+		curCarrierRes.getOnePCBResAuto(curViewID, curOnePCBResManu);
+		ui.imgShowWin->loadOnePCBResInfo(curOnePCBResManu, ui.widthErrCon->currentText().toInt(), ui.viewFBSide->currentIndex());
+	}
+}
+
+void myMainWindow::resViewSideUpdate(int viewSide)
+{
+	this->viewSide = viewSide;
+
+	if (!curOnePCBResManu.empty())
+	{
+		ui.imgShowWin->loadOnePCBResInfo(curOnePCBResManu, ui.widthErrCon->currentText().toInt(), this->viewSide);
+	}
+}
+
+void myMainWindow::refreshErrConWidth(QString indexCurText)
+{
+	int width = indexCurText.toInt();
+	ui.imgShowWin->refreshPolyItemsDrawWidth(width);
+}
+
+/**
+ * \brief to show if all the setting is done and the software is ready to accept the QRCode information
+ */
 void myMainWindow::showReadyMessage()
 {
-	if(isLogin && !resFileToMESPath.isEmpty() && !databaseManuName.isEmpty() && !databaseAutoName.isEmpty() && ui.onePCBID->text().isEmpty())
+	if(isLogin && !resFileToMESPath.isEmpty() && !databaseManuName.isEmpty() && !databaseAutoName.isEmpty())
 	{
+		ui.onePCBID->setEnabled(true);
+		ui.onePCBID->clear();
 		if(OKModel)
 		{
 			ui.statusBar->showMessage("Ready for human rechecking.OK results are not rechecked.Please put the cursor in the onePCBID label for ID information.");
@@ -443,17 +587,82 @@ void myMainWindow::showReadyMessage()
 	}
 	else
 	{
+		ui.onePCBID->clear();
+		ui.onePCBID->setEnabled(false);
 		ui.statusBar->showMessage("Not ready for human rechecking.");
 	}
 }
 
-void myMainWindow::getCarrierResInfo(QString carrierId, QString checkDate, QString checkTime)
+QString myMainWindow::getHostIPAddress()
+{
+	QString strIPAddress;
+	QList<QHostAddress> ipAddressList = QNetworkInterface::allAddresses();
+	int nListSize = ipAddressList.size();
+
+	for (int i = 0; i < nListSize; i++)
+	{
+		if (ipAddressList.at(i) != QHostAddress::LocalHost && ipAddressList.at(i).toIPv4Address())
+		{
+			strIPAddress = ipAddressList.at(i).toString();
+			break;
+		}
+	}
+
+	if (strIPAddress.isEmpty())
+	{
+		strIPAddress = QHostAddress(QHostAddress::LocalHost).toString();
+	}
+
+	return strIPAddress;
+
+}
+
+void myMainWindow::setComBox()
+{
+	disconnect(ui.viewIDComBox, SIGNAL(currentIndextChanged(QString)), this, SLOT(resViewUpdate(QString)));
+
+	ui.viewIDComBox->clear();
+	for(int i = 0; i < curCarrierRes.getCarrierResAuto().size(); i++)
+	{
+		ui.viewIDComBox->addItem(QString::fromStdString(g_viewName[g_Views[i]]));
+	}
+
+	ui.viewIDComBox->setCurrentIndex(0);
+	curViewID = VIEW_11;
+	curCarrierRes.getOnePCBResAuto(VIEW_11, curOnePCBResManu);
+	ui.imgShowWin->loadOnePCBResInfo(curOnePCBResManu, ui.widthErrCon->currentText().toInt(), ui.viewFBSide->currentIndex());
+
+	connect(ui.viewIDComBox, SIGNAL(currentIndextChanged(QString)), this, SLOT(resViewUpdate(QString)));
+}
+
+/**
+ * \brief	get information from \auto result database with the \carrierID
+ *			stroe the information of each PCB in the carrier to the curCarrierRes
+ *			load the xml file and stroe the auto found error contours to each PCB
+ *				stroe the		\PCBID, 
+ *							\imgResFSide, 
+ *							\imgResBSide, 
+ *							\contourExtraF, 
+ *							\contourMissF, 
+ *							\contourExtraB, 
+ *							\contourMissB,
+ *							\extraErrorNum,
+ *							\missErrorNum		of each PCB in the carrier
+ * \param carrierId :the known carrier id
+ * \param checkDate :the known carrier check date
+ */
+void myMainWindow::getCarrierResInfo(QString carrierId, QString checkDate)
 {
 	if (!dbOfAutoRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Settings (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Databases (*.db)"));
 		if (fileName.isEmpty())
 		{
+			return;
+		}
+		if (fileName.indexOf("userdata.db") != -1)
+		{
+			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
 			return;
 		}
 
@@ -463,6 +672,7 @@ void myMainWindow::getCarrierResInfo(QString carrierId, QString checkDate, QStri
 		if (!dbOfAutoRes.open())
 		{
 			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			return;
 		}
 
 		databaseAutoName = fileName;
@@ -481,6 +691,7 @@ void myMainWindow::getCarrierResInfo(QString carrierId, QString checkDate, QStri
 
 	std::string resImgPathBSide;
 
+	onePCBResInfo curOnePCBRes;
 	while (query.next())
 	{
 		QString viewId = query.value(2).toString();
@@ -497,17 +708,31 @@ void myMainWindow::getCarrierResInfo(QString carrierId, QString checkDate, QStri
 		curOnePCBRes.clearInfo();
 	}
 
-	std::string errContourFilePath = resImgPathBSide.substr(0, resImgPathBSide.find_last_of('/') + 1) + "/" + carrierId.toStdString() + "_" + checkDate.toStdString() + "_" + checkTime.toStdString() + ".xml";
+	std::string errContourFilePath = resImgPathBSide.substr(0, resImgPathBSide.find_last_of('/') + 1) + "/" + carrierId.toStdString() + "_" + checkDate.toStdString() + ".xml";
 	curCarrierRes.setErrContoursAuto(errContourFilePath);
+
+	setComBox();
 }
 
-void myMainWindow::getCarrierID_Time(QString onePCBID, QString& carrierId, QString& checkDate, QString& checkTime)
+/**
+ * \brief	get the \carrierID, \carrierCheckDate, \carrierCheckTime with the known one PCB id in the carrier from \auto results database
+ * \param onePCBID :the known PCB id which is gotten from the QRCode scanner
+ * \param carrierId :the to get \carrierID
+ * \param checkDate :the to get \carrierDate
+ * \param checkTime :the to get \carrierTime
+ */
+void myMainWindow::getCarrierID_Date(QString onePCBID, QString& carrierId, QString& checkDate)
 {
 	if (!dbOfAutoRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Settings (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Databases (*.db)"));
 		if (fileName.isEmpty())
 		{
+			return;
+		}
+		if (fileName.indexOf("userdata.db") != -1)
+		{
+			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
 			return;
 		}
 
@@ -517,6 +742,7 @@ void myMainWindow::getCarrierID_Time(QString onePCBID, QString& carrierId, QStri
 		if (!dbOfAutoRes.open())
 		{
 			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			return;
 		}
 
 		databaseAutoName = fileName;
@@ -537,8 +763,128 @@ void myMainWindow::getCarrierID_Time(QString onePCBID, QString& carrierId, QStri
 	{
 		carrierId = query.value(1).toString();
 		checkDate = query.value(3).toString();
-		checkTime = query.value(4).toString();
 	}
+}
+
+void myMainWindow::writeDatabaseTable(QString str)
+{
+	if (!dbOfManuRes.isValid())
+	{
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Databases (*.db)"));
+		if (fileName.isEmpty())
+		{
+			return;
+		}
+		if (fileName.indexOf("userdata.db") != -1)
+		{
+			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+			return;
+		}
+
+		dbOfManuRes = QSqlDatabase::addDatabase("QSQLITE", "RESULT_DB");
+		dbOfManuRes.setDatabaseName(fileName);
+
+		if (!dbOfManuRes.open())
+		{
+			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			return;
+		}
+
+		databaseManuName = fileName;
+		if (settingWindow != Q_NULLPTR)
+		{
+			settingWindow->updateDatabaseManuFile(fileName);
+		}
+	}
+
+	QSqlQuery query(dbOfManuRes);
+	query.exec("create table reCheckRes (PCBID varchar(30) primary key, "
+		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), "
+		"Result varchar(30), ExtraErrorNumF varchar(10), MissErrorNumF varchar(10), "
+		"ExtraErrorNumB varchar(10), MissErrorNumB varchar(10), resImgPath varchar(100))");
+	query.exec(tr("insert into reCheckRes values(%1)").arg(str));
+}
+
+void myMainWindow::saveErrContours(std::string filePath)
+{
+	std::string labels[4] = { "ExtraContours_FrontSide", "MissContours_FrontSide", "ExtraContours_BackSide", "MissContours_BackSide" };
+	cv::FileStorage fs(filePath, cv::FileStorage::WRITE);
+
+	fs << curOnePCBResManu.pcbID << "{";
+	fs << labels[0] << curOnePCBResManu.contourExtraF;
+	fs << labels[1] << curOnePCBResManu.contourMissF;
+	fs << labels[2] << curOnePCBResManu.contourExtraB;
+	fs << labels[3] << curOnePCBResManu.contourMissB;
+	fs << "}";
+}
+
+void myMainWindow::writeDatabaseTable_TXTFile(onePCBResInfo onePCBResManu)
+{
+	std::string pcbID = onePCBResManu.pcbID;
+	QDate curDate = QDate::currentDate();
+	QTime curTime = QTime::currentTime();
+
+	QString res;
+	if(onePCBResManu.extraErrorNum == 0 && onePCBResManu.missErrorNum == 0)
+	{
+		if(onePCBResManu.isModified)
+		{
+			res = "PS";
+		}
+		else
+		{
+			res = "OK";
+		}
+	}
+	else
+	{
+		res = "NG";
+	}
+
+	////create the txt file to MES
+	QString txtFilePathtoMES = resFileToMESPath + "/" + QString::fromStdString(pcbID) + "_" + curDate.toString("yyyy-MM-dd") + "_" + curTime.toString("hh-mm-ss") + "_" + res + ".txt";
+
+	QFile txtFile(txtFilePathtoMES);
+	if (txtFile.open(QFile::WriteOnly | QIODevice::Truncate))
+	{
+		QTextStream out(&txtFile);
+		out << QString::fromStdString(pcbID) << endl;
+		out << carrierID.mid(0, 9) << endl;
+		out << curDate.toString("yyyy-MM-dd") << endl;
+		out << curTime.toString("hh-mm-ss") << endl;
+		out << userName << endl;
+		out << ipAddress << endl;
+		out << res << endl;
+	}
+
+	//save the recheck result images and related .xml file to the same file path of the auto check result files
+	QString fileUpdate_OriginPath = resFileToGetPath + "/" + carrierID.mid(0, 9)
+		+ "/" + curDate.toString("yyyy-MM-dd")
+		+ "/" + QString::fromStdString(pcbID) + "_" + curDate.toString("yyyy-MM-dd")
+		+ "_" + curTime.toString("hh-mm-ss") + "_" + res;
+
+	//write information to recheck database
+	QString str = "'" + QString::fromStdString(pcbID)
+		+ "', '" + carrierID + "', '" + QString::fromStdString(g_viewName[curViewID])
+		+ "', '" + curDate.toString("yyyy-MM-dd")
+		+ "', '" + curTime.toString("hh-mm-ss")
+		+ "', '" + res
+		+ "', '" + QString::number(onePCBResManu.contourExtraF.size(), 10)
+		+ "', '" + QString::number(onePCBResManu.contourMissF.size(), 10)
+		+ "', '" + QString::number(onePCBResManu.contourExtraB.size(), 10)
+		+ "', '" + QString::number(onePCBResManu.contourMissB.size(), 10)
+		+ "', '" + fileUpdate_OriginPath + "_fside_recheck.jpg\n"
+				+ fileUpdate_OriginPath + "_bside_recheck.jpg'";
+
+	writeDatabaseTable(str);
+
+	//save result images(.jpg) and contours information(.xml)
+	cv::imwrite(fileUpdate_OriginPath.toStdString() + "_fside_recheck.jpg", onePCBResManu.imgResFSide);
+	cv::imwrite(fileUpdate_OriginPath.toStdString() + "_bside_recheck.jpg", onePCBResManu.imgResBSide);
+
+	QString xmlFilePath = resFileToGetPath + "/" + carrierID.mid(0, 9) + "/" + curDate.toString("yyyy-MM-dd")
+		+ "/" + carrierID + "_" + curDate.toString("yyyy-MM-dd") + "_recheck.xml";
+	saveErrContours(xmlFilePath.toStdString());
 }
 
 void myMainWindow::closeEvent(QCloseEvent* event)

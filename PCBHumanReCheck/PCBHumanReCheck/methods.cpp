@@ -57,6 +57,33 @@ QVector<QPointF> StdVectorcvPoint2QVectorQPointF(std::vector<cv::Point> stdVecPt
 	return QVecPts;
 }
 
+cv::Point QPointF2cvPoint(QPointF point)
+{
+	cv::Point cvPoint = cv::Point(static_cast<int>(point.x()), static_cast<int>(point.y()));
+	return cvPoint;
+}
+
+std::vector<cv::Point> QVectorQPointF2StdVectorcvPoint(QVector<QPointF> qPoints)
+{
+	std::vector<cv::Point> stdVecPoint;
+	for (QVector<QPointF>::iterator iter = qPoints.begin(); iter != qPoints.end(); ++iter) {
+		stdVecPoint.push_back(QPointF2cvPoint(*iter));
+	}
+	return stdVecPoint;
+}
+
+void eraseOneContour(std::vector<std::vector<cv::Point>> allContours, std::vector<cv::Point> oneContour)
+{
+	for(std::vector<std::vector<cv::Point>>::iterator itor = allContours.begin(); itor != allContours.end(); itor++)
+	{
+		if((*itor) == oneContour)
+		{
+			allContours.erase(itor);
+			return;
+		}
+	}
+}
+
 
 /**
  * \brief	trying to use the color for drawing contours to recover the error areas from the result image,

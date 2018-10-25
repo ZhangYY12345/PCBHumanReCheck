@@ -72,7 +72,7 @@ void toLogin::checkAuthority()
 
 	if (query.next())
 	{
-		emit okToLogin();
+		emit okToLogin(userName);
 		close();
 	}
 	else

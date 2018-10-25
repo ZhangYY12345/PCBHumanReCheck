@@ -16,7 +16,7 @@ public:
 	void winClose();
 
 	signals:
-	void okToLogin();
+	void okToLogin(QString);
 
 	public slots:
 	void checkAuthority();

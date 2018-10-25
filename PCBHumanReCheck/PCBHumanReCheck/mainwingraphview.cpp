@@ -3,6 +3,7 @@
 #include <QMenu>
 #include <QDebug>
 #include <qgraphicssceneevent.h>
+#include "methods.h"
 
 //---------------------------------------------------
 //------------------AreaPolygonItem------------------
@@ -13,6 +14,8 @@ AreaPolygonItem::AreaPolygonItem(QGraphicsItem* parent)
 	setFlag(QGraphicsPolygonItem::ItemIsSelectable);
 	setSelected(false);
 
+	setZValue(1);
+
 	errName = NULL_ERR;
 }
 
@@ -20,6 +23,8 @@ AreaPolygonItem::AreaPolygonItem(AreaPolygonItem& src)
 {
 	setFlags(src.flags());
 	setSelected(src.isSelected());
+
+	setZValue(1);
 
 	setPolygon(src.polygon());
 	setPen(src.pen());
@@ -34,7 +39,20 @@ AreaPolygonItem::AreaPolygonItem(const QPolygonF& polygonPts, QGraphicsItem* par
 	setFlag(QGraphicsPolygonItem::ItemIsSelectable);
 	setSelected(false);
 
+	setZValue(1);
+
 	setPolygon(polygonPts);
+	errName = NULL_ERR;
+}
+
+AreaPolygonItem::AreaPolygonItem(const std::vector<cv::Point>& polygonPts, QGraphicsItem* parent)
+{
+	setFlag(QGraphicsPolygonItem::ItemIsSelectable);
+	setSelected(false);
+
+	setZValue(1);
+
+	setPolygon(StdVectorcvPoint2QVectorQPointF(polygonPts));
 	errName = NULL_ERR;
 }
 
@@ -44,7 +62,22 @@ AreaPolygonItem::AreaPolygonItem(const QPolygonF& polygonPts, const ERR_CONTOUR_
 	setFlag(QGraphicsPolygonItem::ItemIsSelectable);
 	setSelected(false);
 
+	setZValue(1);
+
 	setPolygon(polygonPts);
+	errName = typeName;
+	setPolyPenStyle(lineWidth);
+}
+
+AreaPolygonItem::AreaPolygonItem(const std::vector<cv::Point>& polygonPts, const ERR_CONTOUR_NAME typeName,
+	int lineWidth, QGraphicsItem* parent)
+{
+	setFlag(QGraphicsPolygonItem::ItemIsSelectable);
+	setSelected(false);
+
+	setZValue(1);
+
+	setPolygon(StdVectorcvPoint2QVectorQPointF(polygonPts));
 	errName = typeName;
 	setPolyPenStyle(lineWidth);
 }
@@ -142,12 +175,14 @@ void AreaPolygonItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
 	mouseEventScenePt = event->scenePos();
 	mouseEventScreenPt = event->screenPos();
 
-	isNewPolyPt = false;
 	setFlag(QGraphicsPolygonItem::ItemIsSelectable, true);
 	if (event->button() == Qt::LeftButton)
 	{
-		emit chosenItem();
 		setSelected(true);
+
+		QPen newPen = pen();
+		newPen.setStyle(Qt::DashDotDotLine);
+		setPen(newPen);
 	}
 }
 
@@ -194,6 +229,73 @@ void MainWinGraphView::zoom(int value, QPointF pos)
 void MainWinGraphView::setZoomLevel(int value)
 {
 	zoomLevel = value;
+}
+
+void MainWinGraphView::addItem(AreaPolygonItem* item)
+{
+	this->scene()->addItem(item);
+}
+
+void MainWinGraphView::removeItem(AreaPolygonItem* item)
+{
+	this->scene()->removeItem(item);
+}
+
+void MainWinGraphView::clearAllPolyItems()
+{
+	QList<QGraphicsItem*> toDeletePolyItems = getAllPolyItems();
+	for (QList<QGraphicsItem*>::iterator iter = toDeletePolyItems.begin(); iter != toDeletePolyItems.end(); iter++)
+	{
+		removeItem((AreaPolygonItem*)(*iter));
+	}
+}
+
+void MainWinGraphView::clearAllItem()
+{
+	this->scene()->clear();
+}
+
+QList<QGraphicsItem*> MainWinGraphView::getAllPolyItems()
+{
+	QList<QGraphicsItem*> polyItemList = this->scene()->items();
+	if (!polyItemList.isEmpty())
+	{
+		polyItemList.removeLast();
+	}
+	return polyItemList;
+}
+
+QList<QGraphicsItem*> MainWinGraphView::getOneErrTypePolyItems(ERR_CONTOUR_NAME errType)
+{
+	QList<QGraphicsItem*> areaNamePolyItems;
+	QList<QGraphicsItem* > allPolyItems = getAllPolyItems();
+	for (int i = 0; i < allPolyItems.size(); i++)
+	{
+		if (((AreaPolygonItem*)allPolyItems[i])->getAreaName() == errType)
+			areaNamePolyItems.push_back(allPolyItems[i]);
+	}
+	return areaNamePolyItems;
+}
+
+QGraphicsItem* MainWinGraphView::getOneErrTypePolyItems(QPointF pt)
+{
+	QList<QGraphicsItem* > allItems = this->scene()->items(pt);
+	if(allItems[0]->zValue() != 0)
+	{
+		return allItems[0];
+	}
+
+	return Q_NULLPTR;
+}
+
+QGraphicsItem* MainWinGraphView::getPolygonItemWithPts(QVector<QPointF> pts)
+{
+	QList<QGraphicsItem*> itemList = this->scene()->items(pts);
+	if(itemList.size() != 0 && itemList[0]->zValue() == 1)
+	{
+		return itemList[0];
+	}
+	return Q_NULLPTR;
 }
 
 void MainWinGraphView::wheelEvent(QWheelEvent* event)

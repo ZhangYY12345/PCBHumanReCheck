@@ -1,4 +1,5 @@
 #include "parameters.h"
+#include "methods.h"
 
 
 REGION_IN_CARRIER g_Views[8] = { VIEW_11, VIEW_12, VIEW_21, VIEW_22, VIEW_31, VIEW_32, VIEW_41, VIEW_42 };
@@ -60,6 +61,11 @@ onePCBResInfo::~onePCBResInfo()
 	}
 }
 
+bool onePCBResInfo::empty()
+{
+	return !(pcbID != "" && !imgResFSide.empty() && !imgResBSide.empty());
+}
+
 void onePCBResInfo::clearInfo()
 {
 	pcbID = "";
@@ -89,6 +95,40 @@ void onePCBResInfo::clearInfo()
 		contourMissB.clear();
 	}
 
+}
+
+void onePCBResInfo::erase(int sideInfo, ERR_CONTOUR_NAME errNameInfo, std::vector<cv::Point> pts)
+{
+	if(sideInfo == 0)
+	{
+		if(errNameInfo == EXTRA_ERR)
+		{
+			eraseOneContour(contourExtraF, pts);
+			extraErrorNum--;
+			isModified = true;
+		}
+		else if(errNameInfo == MISS_ERR)
+		{
+			eraseOneContour(contourMissF, pts);
+			missErrorNum--;
+			isModified = true;
+		}
+	}
+	else if(sideInfo == 1)
+	{
+		if (errNameInfo == EXTRA_ERR)
+		{
+			eraseOneContour(contourExtraB, pts);
+			extraErrorNum--;
+			isModified = true;
+		}
+		else if (errNameInfo == MISS_ERR)
+		{
+			eraseOneContour(contourMissB, pts);
+			missErrorNum--;
+			isModified = true;
+		}
+	}
 }
 
 onePCBResInfo& onePCBResInfo::operator=(onePCBResInfo& obj)
@@ -169,9 +209,19 @@ void CarrierResInfo::setOnePCBResAuto(REGION_IN_CARRIER viewID, onePCBResInfo on
 	carrierResInfoAuto[viewID] = oneRes;
 }
 
+void CarrierResInfo::getOnePCBResAuto(REGION_IN_CARRIER viewID, onePCBResInfo& oneRes)
+{
+	oneRes = carrierResInfoAuto[viewID];
+}
+
 onePCBResInfo CarrierResInfo::getOnePCBResAuto(REGION_IN_CARRIER viewID)
 {
 	return carrierResInfoAuto[viewID];
+}
+
+void CarrierResInfo::getCarrierResAuto(std::map<REGION_IN_CARRIER, onePCBResInfo>& allRes)
+{
+	allRes = carrierResInfoAuto;
 }
 
 std::map<REGION_IN_CARRIER, onePCBResInfo> CarrierResInfo::getCarrierResAuto()
@@ -182,6 +232,11 @@ std::map<REGION_IN_CARRIER, onePCBResInfo> CarrierResInfo::getCarrierResAuto()
 void CarrierResInfo::setOnePCBResManu(REGION_IN_CARRIER viewID, onePCBResInfo oneRes)
 {
 	carrierResInfoManu[viewID] = oneRes;
+}
+
+void CarrierResInfo::getOnePCBResManu(REGION_IN_CARRIER viewID, onePCBResInfo& oneRes)
+{
+	oneRes = carrierResInfoManu[viewID];
 }
 
 onePCBResInfo CarrierResInfo::getOnePCBResManu(REGION_IN_CARRIER viewID)
@@ -198,6 +253,11 @@ void CarrierResInfo::setCarrierResManu(std::map<REGION_IN_CARRIER, onePCBResInfo
 
 		itor_carrier_this++;
 	}
+}
+
+void CarrierResInfo::getCarrierResManu(std::map<REGION_IN_CARRIER, onePCBResInfo>& allRes)
+{
+	allRes = carrierResInfoManu;
 }
 
 std::map<REGION_IN_CARRIER, onePCBResInfo> CarrierResInfo::getCarrierResManu()
