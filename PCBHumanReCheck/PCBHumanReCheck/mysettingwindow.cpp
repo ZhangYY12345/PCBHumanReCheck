@@ -70,7 +70,7 @@ void mySettingWindow::updateOKModel(bool okModel)
 
 void mySettingWindow::setDatabaseAutoFile()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Load Database"), ".", tr("Settings (*.db)"));
+	QString fileName = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("数据库加载"), ".", QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 	if (fileName.isEmpty())
 	{
 		return;
@@ -81,7 +81,7 @@ void mySettingWindow::setDatabaseAutoFile()
 
 	if (!db.open())
 	{
-		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 	db.close();
@@ -94,7 +94,7 @@ void mySettingWindow::setDatabaseAutoFile()
 
 void mySettingWindow::setDatabaseManuFile()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Load Database"), ".", tr("Settings (*.db)"));
+	QString fileName = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("数据库加载"), ".", QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 	if (fileName.isEmpty())
 	{
 		return;
@@ -105,7 +105,7 @@ void mySettingWindow::setDatabaseManuFile()
 
 	if (!db.open())
 	{
-		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 	db.close();

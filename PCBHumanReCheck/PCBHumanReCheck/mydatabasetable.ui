@@ -29,7 +29,7 @@
      <item row="5" column="2">
       <widget class="QPushButton" name="ascendButton">
        <property name="text">
-        <string>AscendingOrder</string>
+        <string>升序排列</string>
        </property>
       </widget>
      </item>
@@ -38,7 +38,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>PCBID</string>
+          <string> PCB ID </string>
          </property>
         </widget>
        </item>
@@ -52,14 +52,14 @@
        <item>
         <widget class="QPushButton" name="addButton">
          <property name="text">
-          <string>Add</string>
+          <string>添加</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="deleteButton">
          <property name="text">
-          <string>Delete</string>
+          <string>删除</string>
          </property>
         </widget>
        </item>
@@ -70,7 +70,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string> Date</string>
+          <string>检测日期</string>
          </property>
         </widget>
        </item>
@@ -84,7 +84,7 @@
        <item>
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>  Result  </string>
+          <string>检测结果</string>
          </property>
         </widget>
        </item>
@@ -98,14 +98,14 @@
        <item>
         <widget class="QPushButton" name="recallButton">
          <property name="text">
-          <string>Revoke</string>
+          <string>撤回</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="submitButton">
          <property name="text">
-          <string>Submit</string>
+          <string>提交</string>
          </property>
         </widget>
        </item>
@@ -116,14 +116,14 @@
        <item>
         <widget class="QPushButton" name="queryButton">
          <property name="text">
-          <string>Query</string>
+          <string>查询</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="showAllButton">
          <property name="text">
-          <string>ShowAll</string>
+          <string>显示全部</string>
          </property>
         </widget>
        </item>
@@ -134,7 +134,7 @@
        <item>
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>RegionID</string>
+          <string>区域ID</string>
          </property>
         </widget>
        </item>
@@ -148,7 +148,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Carrier ID</string>
+          <string> 载具ID </string>
          </property>
         </widget>
        </item>
@@ -162,7 +162,7 @@
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>PCBID</string>
+          <string> PCB ID </string>
          </property>
         </widget>
        </item>
@@ -195,14 +195,14 @@
      <item row="5" column="1">
       <widget class="QPushButton" name="descendButton">
        <property name="text">
-        <string>DescendingOrder</string>
+        <string>降序排列</string>
        </property>
       </widget>
      </item>
      <item row="5" column="0">
       <widget class="QPushButton" name="statisticButton">
        <property name="text">
-        <string>Statistics</string>
+        <string>显示统计图</string>
        </property>
       </widget>
      </item>

@@ -145,7 +145,7 @@ void myDatabaseTable::toQuery()
 
 	if (queryoption == "")
 	{
-		QMessageBox::warning(this, "Query Failed", "Please filled in at least one frame before querying", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("查询出错"), QString::fromLocal8Bit("查询项为空。"), QMessageBox::Abort);
 		return;
 	}
 	else
@@ -182,7 +182,7 @@ void myDatabaseTable::toSubmit()
 	else
 	{
 		model->database().rollback();
-		QMessageBox::warning(this, tr("tableModel"), tr("databse error:%1").arg(model->lastError().text()));
+		QMessageBox::warning(this, QString::fromLocal8Bit("错误"), QString::fromLocal8Bit("数据库操作错误：")+ tr("%1").arg(model->lastError().text()));
 	}
 }
 
@@ -206,8 +206,8 @@ void myDatabaseTable::toDelete()
 
 	model->removeRow(curRow);
 
-	int ok = QMessageBox::warning(this, tr("delete the current row"),
-		tr("Are you sure that you are going to delete the current row?"), QMessageBox::Yes, QMessageBox::No);
+	int ok = QMessageBox::warning(this, QString::fromLocal8Bit("删除当前行"),
+		QString::fromLocal8Bit("是否确认删除当前行？"), QMessageBox::Yes, QMessageBox::No);
 	if (ok == QMessageBox::No)
 	{
 		model->revertAll();

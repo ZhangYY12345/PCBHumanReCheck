@@ -184,23 +184,25 @@ void CarrierResInfo::setErrContoursAuto(std::string filePathXML)
 	std::string labels[4] = { "ExtraContours_FrontSide", "MissContours_FrontSide", "ExtraContours_BackSide", "MissContours_BackSide" };
 
 	cv::FileStorage fs(filePathXML, cv::FileStorage::READ);
-	fs["CarrierID"] >> curCarrierID;
-	fs["CarrierViewNum"] >> viewNum;
-
-	for (int i = 0; i < viewNum; i++)
+	if (fs.isOpened())
 	{
-		std::string upperLabel = g_viewName[g_Views[i]];
-		cv::FileNode fn = fs[upperLabel];
+		fs["CarrierID"] >> curCarrierID;
+		fs["CarrierViewNum"] >> viewNum;
 
-		fn[labels[0]] >> carrierResInfoAuto[g_Views[i]].contourExtraF;
-		fn[labels[1]] >> carrierResInfoAuto[g_Views[i]].contourMissF;
-		fn[labels[2]] >> carrierResInfoAuto[g_Views[i]].contourExtraB;
-		fn[labels[3]] >> carrierResInfoAuto[g_Views[i]].contourMissB;
+		for (int i = 0; i < viewNum; i++)
+		{
+			std::string upperLabel = g_viewName[g_Views[i]];
+			cv::FileNode fn = fs[upperLabel];
 
-		carrierResInfoAuto[g_Views[i]].extraErrorNum = carrierResInfoAuto[g_Views[i]].contourExtraF.size() + carrierResInfoAuto[g_Views[i]].contourExtraB.size();
-		carrierResInfoAuto[g_Views[i]].missErrorNum = carrierResInfoAuto[g_Views[i]].contourMissF.size() + carrierResInfoAuto[g_Views[i]].contourMissB.size();
+			fn[labels[0]] >> carrierResInfoAuto[g_Views[i]].contourExtraF;
+			fn[labels[1]] >> carrierResInfoAuto[g_Views[i]].contourMissF;
+			fn[labels[2]] >> carrierResInfoAuto[g_Views[i]].contourExtraB;
+			fn[labels[3]] >> carrierResInfoAuto[g_Views[i]].contourMissB;
+
+			carrierResInfoAuto[g_Views[i]].extraErrorNum = carrierResInfoAuto[g_Views[i]].contourExtraF.size() + carrierResInfoAuto[g_Views[i]].contourExtraB.size();
+			carrierResInfoAuto[g_Views[i]].missErrorNum = carrierResInfoAuto[g_Views[i]].contourMissF.size() + carrierResInfoAuto[g_Views[i]].contourMissB.size();
+		}
 	}
-
 	fs.release();
 }
 

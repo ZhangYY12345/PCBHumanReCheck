@@ -31,7 +31,7 @@
         </font>
        </property>
        <property name="text">
-        <string>AutoRes Database:</string>
+        <string>自动检测结果数据库文件：</string>
        </property>
       </widget>
      </item>
@@ -77,7 +77,7 @@
         </font>
        </property>
        <property name="text">
-        <string>ReChRes Database:</string>
+        <string>人工复检检测数据库文件：</string>
        </property>
       </widget>
      </item>
@@ -123,7 +123,7 @@
         </font>
        </property>
        <property name="text">
-        <string>ResFile ToGet Path: </string>
+        <string>所有TXT存储文件夹路径：</string>
        </property>
       </widget>
      </item>
@@ -172,7 +172,7 @@
         </font>
        </property>
        <property name="text">
-        <string>ResFile ToMES Path:</string>
+        <string>MES通信TXT文件存储路径</string>
        </property>
       </widget>
      </item>
@@ -218,7 +218,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Transfer Model:</string>
+        <string>复检模式：</string>
        </property>
       </widget>
      </item>
@@ -238,7 +238,7 @@
      <item>
       <widget class="QRadioButton" name="setModelBt">
        <property name="text">
-        <string>transfer the OK results without human check</string>
+        <string>复检自动检测为合格的产品</string>
        </property>
       </widget>
      </item>

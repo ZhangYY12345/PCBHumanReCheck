@@ -18,7 +18,7 @@ toLogin::toLogin(QWidget *parent)
 	this->userDB.setDatabaseName("userdata.db");
 	if (!this->userDB.open())
 	{
-		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 
@@ -66,7 +66,7 @@ void toLogin::checkAuthority()
 
 	QSqlQuery query(this->userDB);
 	query.exec("create table userData (UserName varchar(30) primary key, Password varchar(30))");
-	query.exec("insert into userData values('supcon', '123456789')");
+	query.exec("insert into userData values('supcon', '12345')");
 
 	query.exec("select * from userData where UserName = '" + userName + "' and Password = '" + password + "'");
 

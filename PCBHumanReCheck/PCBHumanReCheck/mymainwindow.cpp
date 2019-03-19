@@ -41,7 +41,7 @@ myMainWindow::myMainWindow(QWidget *parent)
 	connect(ui.setResPathToMESBt, SIGNAL(clicked()), this, SLOT(setResFileToMESPath()));
 	connect(ui.widthErrCon, SIGNAL(currentIndexChanged(QString)), this, SLOT(refreshErrConWidth(QString)));
 
-	connect(ui.viewIDComBox, SIGNAL(currentIndextChanged(QString)), this, SLOT(resViewUpdate(QString)));
+	connect(ui.viewIDComBox, SIGNAL(currentIndextChanged(const QString&)), this, SLOT(resViewUpdate(const QString&)));
 	connect(ui.viewFBSide, SIGNAL(currentIndexChanged(int)), this, SLOT(resViewSideUpdate(int)));
 
 	connect(this, SIGNAL(readyCheck()), this, SLOT(showReadyMessage()));
@@ -57,7 +57,9 @@ void myMainWindow::toLog()
 {
 	if(isLogin)
 	{
-		int r = QMessageBox::question(this, tr("Logout"), tr("You has logged in.\nDo you want to logout now?"), QMessageBox::Yes, QMessageBox::No);
+		int r = QMessageBox::question(this, QString::fromLocal8Bit("退出登录"), 
+			QString::fromLocal8Bit("您将退出当前登录，是否确认退出登录？"), 
+			QMessageBox::Yes, QMessageBox::No);
 		if (r == QMessageBox::Yes)
 		{
 			isLogin = false;
@@ -105,14 +107,18 @@ int myMainWindow::showDatabaseTable()
 {
 	if (!dbOfManuRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Databases (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, 
+			QString::fromLocal8Bit("加载人工复检数据库"), ".", 
+			QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 		if (fileName.isEmpty())
 		{
 			return -1;
 		}
 		if(fileName.indexOf("userdata.db") != -1)
 		{
-			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), 
+				QMessageBox::Abort);
 			return -1;
 		}
 
@@ -121,7 +127,8 @@ int myMainWindow::showDatabaseTable()
 
 		if (!dbOfManuRes.open())
 		{
-			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 			return -1;
 		}
 		databaseManuName = fileName;
@@ -156,14 +163,18 @@ void myMainWindow::showSettingWin()
 
 void myMainWindow::newDatabase()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, tr("Create new Manual ReCheckRes Database"), ".", tr("Databases (*.db);"));
+	QString fileName = QFileDialog::getSaveFileName(this, 
+		QString::fromLocal8Bit("创建新的人工复检数据库"), ".", 
+		QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 	if (fileName.isEmpty())
 	{
 		return;
 	}
 	if (fileName.indexOf("userdata.db") != -1)
 	{
-		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+			QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), 
+			QMessageBox::Abort);
 		return;
 	}
 
@@ -176,7 +187,8 @@ void myMainWindow::newDatabase()
 
 	if (!dbOfManuRes.open())
 	{
-		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+			QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 
@@ -190,14 +202,18 @@ void myMainWindow::newDatabase()
 
 void myMainWindow::setDatabaseAuto()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Databases (*.db)"));
+	QString fileName = QFileDialog::getOpenFileName(this, 
+		QString::fromLocal8Bit("加载自动检测结果数据库"), ".", 
+		QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 	if (fileName.isEmpty())
 	{
 		return;
 	}
 	if (fileName.indexOf("userdata.db") != -1)
 	{
-		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+			QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), 
+			QMessageBox::Abort);
 		return;
 	}
 
@@ -210,7 +226,8 @@ void myMainWindow::setDatabaseAuto()
 
 	if (!dbOfAutoRes.open())
 	{
-		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"),
+			QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 
@@ -224,14 +241,17 @@ void myMainWindow::setDatabaseAuto()
 
 void myMainWindow::setDatabaseManu()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Databases (*.db)"));
+	QString fileName = QFileDialog::getOpenFileName(this, 
+		QString::fromLocal8Bit("加载人工复检数据库"), ".", 
+		QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 	if (fileName.isEmpty())
 	{
 		return;
 	}
 	if (fileName.indexOf("userdata.db") != -1)
 	{
-		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+			QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 
@@ -244,7 +264,8 @@ void myMainWindow::setDatabaseManu()
 
 	if (!dbOfManuRes.open())
 	{
-		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+			QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 
@@ -335,7 +356,8 @@ void myMainWindow::updateDatabaseAutoFile(QString fileName)
 	}
 	if (fileName.indexOf("userdata.db") != -1)
 	{
-		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+			QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 
@@ -348,7 +370,8 @@ void myMainWindow::updateDatabaseAutoFile(QString fileName)
 
 	if (!dbOfAutoRes.open())
 	{
-		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+			QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 
@@ -364,7 +387,8 @@ void myMainWindow::updateDatabaseManuFile(QString fileName)
 	}
 	if (fileName.indexOf("userdata.db") != -1)
 	{
-		QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+			QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 
@@ -377,7 +401,8 @@ void myMainWindow::updateDatabaseManuFile(QString fileName)
 
 	if (!dbOfManuRes.open())
 	{
-		QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+		QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+			QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 		return;
 	}
 
@@ -414,9 +439,8 @@ void myMainWindow::updateOKModel(bool isOKTransfer)
 
 void myMainWindow::showAutoCarrierInfo()
 {
-
-
 	QString onePCBId = ui.onePCBID->text();
+	ui.onePCBID->clear();
 	QString carrierID;
 	QString carrierCheckDate;
 
@@ -427,14 +451,17 @@ void myMainWindow::showAutoCarrierInfo()
 
 	if (!dbOfAutoRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Databases (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, 
+			QString::fromLocal8Bit("加载自动检测结果数据库"), ".", 
+			QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 		if (fileName.isEmpty())
 		{
 			return;
 		}
 		if (fileName.indexOf("userdata.db") != -1)
 		{
-			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), QMessageBox::Abort);
 			return;
 		}
 
@@ -443,7 +470,8 @@ void myMainWindow::showAutoCarrierInfo()
 
 		if (!dbOfAutoRes.open())
 		{
-			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 			return;
 		}
 		databaseAutoName = fileName;
@@ -484,14 +512,18 @@ void myMainWindow::showManuCarrierInfo()
 {
 	if (!dbOfManuRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Databases (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, 
+			QString::fromLocal8Bit("加载人工复检数据库"), ".", 
+			QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 		if (fileName.isEmpty())
 		{
 			return;
 		}
 		if (fileName.indexOf("userdata.db") != -1)
 		{
-			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), 
+				QMessageBox::Abort);
 			return;
 		}
 
@@ -500,7 +532,8 @@ void myMainWindow::showManuCarrierInfo()
 
 		if (!dbOfManuRes.open())
 		{
-			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 			return;
 		}
 		databaseManuName = fileName;
@@ -537,7 +570,7 @@ void myMainWindow::showManuCarrierInfo()
 	}
 }
 
-void myMainWindow::resViewUpdate(QString viewID)
+void myMainWindow::resViewUpdate(const QString& viewID)
 {
 	curViewID = g_viewName_Reverse[viewID.toStdString()];
 	if (!curOnePCBResManu.empty())
@@ -578,18 +611,18 @@ void myMainWindow::showReadyMessage()
 		ui.onePCBID->clear();
 		if(OKModel)
 		{
-			ui.statusBar->showMessage("Ready for human rechecking.OK results are not rechecked.Please put the cursor in the onePCBID label for ID information.");
+			ui.statusBar->showMessage(QString::fromLocal8Bit("准备好进行人工复检。自动检测为合格的产品不进行复检。请把鼠标光标放在onePCBID栏，扫描输入PCB二维码ID。"));
 		}
 		else
 		{
-			ui.statusBar->showMessage("Ready for human rechecking.OK results are also rechecked.Please put the cursor in the onePCBID label for ID information.");
+			ui.statusBar->showMessage(QString::fromLocal8Bit("准备好进行人工复检。自动检测为合格的产品也进行复检。请把鼠标光标放在onePCBID栏，扫描输入PCB二维码ID。"));
 		}
 	}
 	else
 	{
 		ui.onePCBID->clear();
 		ui.onePCBID->setEnabled(false);
-		ui.statusBar->showMessage("Not ready for human rechecking.");
+		ui.statusBar->showMessage(QString::fromLocal8Bit("未准备好进行人工复检，请检查登录状态，设置与MES的通信路径，并设置存储和读取数据库文件。"));
 	}
 }
 
@@ -640,14 +673,14 @@ void myMainWindow::setComBox()
  *			stroe the information of each PCB in the carrier to the curCarrierRes
  *			load the xml file and stroe the auto found error contours to each PCB
  *				stroe the		\PCBID, 
- *							\imgResFSide, 
- *							\imgResBSide, 
- *							\contourExtraF, 
- *							\contourMissF, 
- *							\contourExtraB, 
- *							\contourMissB,
- *							\extraErrorNum,
- *							\missErrorNum		of each PCB in the carrier
+ *								\imgResFSide, 
+ *								\imgResBSide, 
+ *								\contourExtraF, 
+ *								\contourMissF, 
+ *								\contourExtraB, 
+ *								\contourMissB,
+ *								\extraErrorNum,
+ *								\missErrorNum		of each PCB in the carrier
  * \param carrierId :the known carrier id
  * \param checkDate :the known carrier check date
  */
@@ -655,14 +688,18 @@ void myMainWindow::getCarrierResInfo(QString carrierId, QString checkDate)
 {
 	if (!dbOfAutoRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Databases (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, 
+			QString::fromLocal8Bit("加载自动检测结果数据库"), ".", 
+			QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 		if (fileName.isEmpty())
 		{
 			return;
 		}
 		if (fileName.indexOf("userdata.db") != -1)
 		{
-			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), 
+				QMessageBox::Abort);
 			return;
 		}
 
@@ -671,7 +708,8 @@ void myMainWindow::getCarrierResInfo(QString carrierId, QString checkDate)
 
 		if (!dbOfAutoRes.open())
 		{
-			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 			return;
 		}
 
@@ -725,14 +763,18 @@ void myMainWindow::getCarrierID_Date(QString onePCBID, QString& carrierId, QStri
 {
 	if (!dbOfAutoRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load AutoCheck Result Database"), ".", tr("Databases (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, 
+			QString::fromLocal8Bit("加载自动检测结果数据库"), ".", 
+			QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 		if (fileName.isEmpty())
 		{
 			return;
 		}
 		if (fileName.indexOf("userdata.db") != -1)
 		{
-			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), 
+				QMessageBox::Abort);
 			return;
 		}
 
@@ -741,7 +783,8 @@ void myMainWindow::getCarrierID_Date(QString onePCBID, QString& carrierId, QStri
 
 		if (!dbOfAutoRes.open())
 		{
-			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 			return;
 		}
 
@@ -770,14 +813,18 @@ void myMainWindow::writeDatabaseTable(QString str)
 {
 	if (!dbOfManuRes.isValid())
 	{
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Load Manual ReCheckRes Database"), ".", tr("Databases (*.db)"));
+		QString fileName = QFileDialog::getOpenFileName(this, 
+			QString::fromLocal8Bit("加载人工复检数据库"), ".", 
+			QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
 		if (fileName.isEmpty())
 		{
 			return;
 		}
 		if (fileName.indexOf("userdata.db") != -1)
 		{
-			QMessageBox::warning(this, "Link Failed", "You have no access to this database.Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("您没有打开所选文件的权限，请重新选择数据库文件。"), 
+				QMessageBox::Abort);
 			return;
 		}
 
@@ -786,7 +833,8 @@ void myMainWindow::writeDatabaseTable(QString str)
 
 		if (!dbOfManuRes.open())
 		{
-			QMessageBox::warning(this, "Link Failed", "Please choose a SQLite3 database", QMessageBox::Abort);
+			QMessageBox::warning(this, QString::fromLocal8Bit("文件打开失败"), 
+				QString::fromLocal8Bit("请重新选择数据库文件。"), QMessageBox::Abort);
 			return;
 		}
 
@@ -810,12 +858,16 @@ void myMainWindow::saveErrContours(std::string filePath)
 	std::string labels[4] = { "ExtraContours_FrontSide", "MissContours_FrontSide", "ExtraContours_BackSide", "MissContours_BackSide" };
 	cv::FileStorage fs(filePath, cv::FileStorage::WRITE);
 
-	fs << curOnePCBResManu.pcbID << "{";
-	fs << labels[0] << curOnePCBResManu.contourExtraF;
-	fs << labels[1] << curOnePCBResManu.contourMissF;
-	fs << labels[2] << curOnePCBResManu.contourExtraB;
-	fs << labels[3] << curOnePCBResManu.contourMissB;
-	fs << "}";
+	if (fs.isOpened())
+	{
+		fs << curOnePCBResManu.pcbID << "{";
+		fs << labels[0] << curOnePCBResManu.contourExtraF;
+		fs << labels[1] << curOnePCBResManu.contourMissF;
+		fs << labels[2] << curOnePCBResManu.contourExtraB;
+		fs << labels[3] << curOnePCBResManu.contourMissB;
+		fs << "}";
+	}
+	fs.release();
 }
 
 void myMainWindow::writeDatabaseTable_TXTFile(onePCBResInfo onePCBResManu)

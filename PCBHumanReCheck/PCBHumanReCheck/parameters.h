@@ -56,15 +56,15 @@ public:
 	void erase(int sideInfo, ERR_CONTOUR_NAME errNameInfo, std::vector<cv::Point> pts);
 	onePCBResInfo& operator = (onePCBResInfo& obj);
 
-	std::string pcbID;
+	std::string pcbID; 
 	cv::Mat imgResFSide;
 	cv::Mat imgResBSide;
 	int extraErrorNum;
 	int missErrorNum;
-	std::vector<std::vector<cv::Point>> contourExtraF;
-	std::vector<std::vector<cv::Point>> contourMissF;
-	std::vector<std::vector<cv::Point>> contourExtraB;
-	std::vector<std::vector<cv::Point>> contourMissB;
+	std::vector<std::vector<cv::Point> > contourExtraF;
+	std::vector<std::vector<cv::Point> > contourMissF;
+	std::vector<std::vector<cv::Point> > contourExtraB;
+	std::vector<std::vector<cv::Point> > contourMissB;
 	bool isModified;
 };
 

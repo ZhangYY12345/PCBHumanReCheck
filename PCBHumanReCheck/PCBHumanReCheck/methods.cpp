@@ -72,9 +72,9 @@ std::vector<cv::Point> QVectorQPointF2StdVectorcvPoint(QVector<QPointF> qPoints)
 	return stdVecPoint;
 }
 
-void eraseOneContour(std::vector<std::vector<cv::Point>> allContours, std::vector<cv::Point> oneContour)
+void eraseOneContour(std::vector<std::vector<cv::Point> > allContours, std::vector<cv::Point> oneContour)
 {
-	for(std::vector<std::vector<cv::Point>>::iterator itor = allContours.begin(); itor != allContours.end(); itor++)
+	for(std::vector<std::vector<cv::Point> >::iterator itor = allContours.begin(); itor != allContours.end(); itor++)
 	{
 		if((*itor) == oneContour)
 		{
@@ -93,7 +93,7 @@ void eraseOneContour(std::vector<std::vector<cv::Point>> allContours, std::vecto
  * \param contoursExtra 
  * \param contoursMiss 
  */
-void getErrorContoursFromImg(const cv::Mat autoResImg, std::vector<std::vector<cv::Point>>& contoursExtra, std::vector<std::vector<cv::Point>>& contoursMiss)
+void getErrorContoursFromImg(const cv::Mat autoResImg, std::vector<std::vector<cv::Point> >& contoursExtra, std::vector<std::vector<cv::Point> >& contoursMiss)
 {
 	cv::Mat extraContourMaskImg;
 	cv::inRange(autoResImg, EXTRA_COATING_ERROR_COLOR, EXTRA_COATING_ERROR_COLOR, extraContourMaskImg);
@@ -117,7 +117,7 @@ void getErrorContoursFromImg(const cv::Mat autoResImg, std::vector<std::vector<c
 	cv::findContours(extraContourMaskImg, contoursMiss, hierarchyMiss, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
 }
 
-std::vector<std::vector<cv::Point>> getIMG(std::vector<std::vector<cv::Point>>& img)
+std::vector<std::vector<cv::Point> > getIMG(std::vector<std::vector<cv::Point>>& img)
 {
 	return img;
 }

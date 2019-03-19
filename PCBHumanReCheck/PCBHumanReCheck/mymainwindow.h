@@ -44,7 +44,7 @@ public:
 	void showAutoCarrierInfo();
 	void showManuCarrierInfo();
 
-	void resViewUpdate(QString);
+	void resViewUpdate(const QString& viewID);
 	void resViewSideUpdate(int);
 
 	void refreshErrConWidth(QString);

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>761</width>
-    <height>672</height>
+    <width>1067</width>
+    <height>641</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -52,7 +52,7 @@
              </font>
             </property>
             <property name="text">
-             <string>Set ToMES Path:</string>
+             <string>与MES通信文件夹路径:</string>
             </property>
            </widget>
           </item>
@@ -111,7 +111,7 @@
              </font>
             </property>
             <property name="text">
-             <string>onePCBID：</string>
+             <string>单个PCBID：</string>
             </property>
            </widget>
           </item>
@@ -124,7 +124,7 @@
              </font>
             </property>
             <property name="acceptDrops">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
              <string/>
@@ -137,7 +137,7 @@
           <item>
            <widget class="QLabel" name="label_3">
             <property name="text">
-             <string>ViewID</string>
+             <string>区域ID</string>
             </property>
            </widget>
           </item>
@@ -147,7 +147,7 @@
           <item>
            <widget class="QLabel" name="label_4">
             <property name="text">
-             <string>F/B Side</string>
+             <string>F/B侧</string>
             </property>
            </widget>
           </item>
@@ -178,7 +178,7 @@
              </font>
             </property>
             <property name="text">
-             <string>ErrContour Width</string>
+             <string>报警区域轮廓显示线宽</string>
             </property>
            </widget>
           </item>
@@ -285,17 +285,17 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>761</width>
+     <width>1067</width>
      <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">
     <property name="title">
-     <string>File</string>
+     <string>文件</string>
     </property>
     <widget class="QMenu" name="menuOpen_database">
      <property name="title">
-      <string>Open Database</string>
+      <string>打开数据库</string>
      </property>
      <addaction name="actionSetARdb"/>
      <addaction name="actionOpenMRdb"/>
@@ -305,11 +305,11 @@
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
-     <string>Setting</string>
+     <string>设置</string>
     </property>
     <widget class="QMenu" name="menuSetModel">
      <property name="title">
-      <string>Set model</string>
+      <string>设置复检模式</string>
      </property>
      <addaction name="actionOKAuto"/>
      <addaction name="actionOKNotAuto"/>
@@ -318,8 +318,14 @@
     <addaction name="actionSetResFilePath"/>
     <addaction name="menuSetModel"/>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>帮助</string>
+    </property>
+   </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
+   <addaction name="menuHelp"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -343,7 +349,7 @@
      <normaloff>:/images/images/login.png</normaloff>:/images/images/login.png</iconset>
    </property>
    <property name="text">
-    <string>Login</string>
+    <string>登录</string>
    </property>
    <property name="toolTip">
     <string>Login/Logout</string>
@@ -351,7 +357,7 @@
   </action>
   <action name="actionSetPathToMES">
    <property name="text">
-    <string>Set FIle to MES Path</string>
+    <string>设置MES通信文件夹路径</string>
    </property>
   </action>
   <action name="actSettings">
@@ -360,7 +366,7 @@
      <normaloff>:/images/images/setting.png</normaloff>:/images/images/setting.png</iconset>
    </property>
    <property name="text">
-    <string>Settings</string>
+    <string>设置</string>
    </property>
    <property name="toolTip">
     <string>Setting path and model</string>
@@ -372,7 +378,7 @@
      <normaloff>:/images/images/view_database.png</normaloff>:/images/images/view_database.png</iconset>
    </property>
    <property name="text">
-    <string>viewDatabase</string>
+    <string>数据库视图</string>
    </property>
    <property name="toolTip">
     <string>view database</string>
@@ -380,7 +386,7 @@
   </action>
   <action name="actionNewDB">
    <property name="text">
-    <string>New ManuRes Database</string>
+    <string>新建人工复检数据库</string>
    </property>
   </action>
   <action name="actionOKAuto">
@@ -388,7 +394,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Auto transfer OK files</string>
+    <string>复检自动检测为合格的产品</string>
    </property>
   </action>
   <action name="actionOKNotAuto">
@@ -396,22 +402,22 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Not Auto transfer OK files</string>
+    <string>不复检自动检测为合格的产品</string>
    </property>
   </action>
   <action name="actionSetResFilePath">
    <property name="text">
-    <string>Set ResTXT File Path</string>
+    <string>设置TXT文件存储路径</string>
    </property>
   </action>
   <action name="actionSetARdb">
    <property name="text">
-    <string>Set AutoRes Database</string>
+    <string>设置自动检测数据库文件</string>
    </property>
   </action>
   <action name="actionOpenMRdb">
    <property name="text">
-    <string>Open ManuRes Databse</string>
+    <string>打开人工附件结果数据库</string>
    </property>
   </action>
  </widget>
