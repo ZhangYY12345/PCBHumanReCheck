@@ -26,21 +26,21 @@ myStatisticPic::~myStatisticPic()
 void myStatisticPic::drawPieToday()
 {
 	QDate qDate = QDate::currentDate();
-	QString currentDate = qDate.toString("yyyy-MM-dd");
+	QString currentDate = qDate.toString("yyyyMMdd");
 
 	QPieSeries *seriesError = new QPieSeries();
-	seriesError->setName("Coating Error PCBs");
-	seriesError->append("MissCoating", getDayOnlyMiErNum(currentDate));
-	seriesError->append("Extra Coating", getDayOnlyExErrNum(currentDate));
-	seriesError->append("Both missing and extra Coating", getDayBothErrNum(currentDate));
+	seriesError->setName(QString::fromLocal8Bit("瑕疵PCB缺陷类型"));
+	seriesError->append(QString::fromLocal8Bit("少涂缺陷"), getDayOnlyMiErNum(currentDate));
+	seriesError->append(QString::fromLocal8Bit("多涂缺陷"), getDayOnlyExErrNum(currentDate));
+	seriesError->append(QString::fromLocal8Bit("少涂和多涂缺陷"), getDayBothErrNum(currentDate));
 
 	QPieSeries *seriesQualify = new QPieSeries();
-	seriesQualify->setName("Qualified PCBs");
-	seriesQualify->append("Qualified", getDayQualityNum(currentDate));
+	seriesQualify->setName(QString::fromLocal8Bit("合格PCB"));
+	seriesQualify->append(QString::fromLocal8Bit("合格"), getDayQualityNum(currentDate));
 
 	DonutBreakdownChart *donutBreakdown = new DonutBreakdownChart();
 	donutBreakdown->setAnimationOptions(QChart::AllAnimations);
-	donutBreakdown->setTitle(tr("Quality of PCB coating on %1.%2.%3").arg(qDate.year()).arg(qDate.month()).arg(qDate.day()));
+	donutBreakdown->setTitle(tr("%1.%2.%3").arg(qDate.year()).arg(qDate.month()).arg(qDate.day()) + QString::fromLocal8Bit("  PCB涂覆质量检测结果"));
 	donutBreakdown->legend()->setAlignment(Qt::AlignRight);
 	donutBreakdown->addBreakdownSeries(seriesError, Qt::red);
 	donutBreakdown->addBreakdownSeries(seriesQualify, Qt::darkGreen);
@@ -52,18 +52,18 @@ void myStatisticPic::drawPieToday()
 void myStatisticPic::drawPieWhole()
 {
 	QPieSeries *seriesError = new QPieSeries();
-	seriesError->setName("Coating Error PCBs");
-	seriesError->append("MissCoating", getWholeOnlyMiErNum());
-	seriesError->append("Extra Coating", getWholeOnlyExErrNum());
-	seriesError->append("Both missing and extra Coating", getWholeBothErrNum());
+	seriesError->setName(QString::fromLocal8Bit("瑕疵PCB缺陷类型"));
+	seriesError->append(QString::fromLocal8Bit("少涂缺陷"), getWholeOnlyMiErNum());
+	seriesError->append(QString::fromLocal8Bit("多涂缺陷"), getWholeOnlyExErrNum());
+	seriesError->append(QString::fromLocal8Bit("少涂和多涂缺陷"), getWholeBothErrNum());
 
 	QPieSeries *seriesQualify = new QPieSeries();
-	seriesQualify->setName("Qualified PCBs");
-	seriesQualify->append("Qualified", getWholeQualityNum());
+	seriesQualify->setName(QString::fromLocal8Bit("合格PCB"));
+	seriesQualify->append(QString::fromLocal8Bit("合格"), getWholeQualityNum());
 
 	DonutBreakdownChart *donutBreakdown = new DonutBreakdownChart();
 	donutBreakdown->setAnimationOptions(QChart::AllAnimations);
-	donutBreakdown->setTitle("Quality of PCB coating in the view of the whole");
+	donutBreakdown->setTitle(QString::fromLocal8Bit("PCB涂覆质量"));
 	donutBreakdown->legend()->setAlignment(Qt::AlignRight);
 	donutBreakdown->addBreakdownSeries(seriesError, Qt::red);
 	donutBreakdown->addBreakdownSeries(seriesQualify, Qt::darkGreen);
@@ -90,7 +90,7 @@ void myStatisticPic::drawLineChart()
 
 	chart->addSeries(series);
 	//chart->createDefaultAxes();
-	chart->setTitle("Trend of quality of PCB coating");
+	chart->setTitle(QString::fromLocal8Bit("PCB涂覆质量变化趋势图"));
 
 	QBarCategoryAxis *axisX = new QBarCategoryAxis();
 	axisX->append(dates);
@@ -125,10 +125,12 @@ void myStatisticPic::winClose()
 void myStatisticPic::getAllDateDB(QStringList& dates)
 {
 	QSqlQuery query(dbToStatistic);
-	query.exec("create table checkRes (PCBID varchar(30) primary key, "
-		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), Result varchar(30), resImgPath varchar(100))");
+	query.exec("create table reCheckRes (PCBID varchar(30) primary key, "
+		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), "
+		"Result varchar(30), ExtraErrorNumF varchar(10), MissErrorNumF varchar(10), "
+		"ExtraErrorNumB varchar(10), MissErrorNumB varchar(10), resImgPath varchar(100))");
 
-	query.exec("select distinct Date from checkRes order by Date");
+	query.exec("select distinct Date from reCheckRes order by Date");
 	while (query.next())
 	{
 		dates.push_back(query.value(QString("Date")).toString());
@@ -138,10 +140,12 @@ void myStatisticPic::getAllDateDB(QStringList& dates)
 int myStatisticPic::getDayOnlyExErrNum(QString date)
 {
 	QSqlQuery query(dbToStatistic);
-	query.exec("create table checkRes (PCBID varchar(30) primary key, "
-		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), Result varchar(30), resImgPath varchar(100))");
+	query.exec("create table reCheckRes (PCBID varchar(30) primary key, "
+		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), "
+		"Result varchar(30), ExtraErrorNumF varchar(10), MissErrorNumF varchar(10), "
+		"ExtraErrorNumB varchar(10), MissErrorNumB varchar(10), resImgPath varchar(100))");
 
-	query.exec(tr("select * from checkRes where Date = '%1' and Result = 'Extra Coating Error'").arg(date));
+	query.exec(tr("select * from reCheckRes where Date = '%1' and Result = 'Extra Coating Error'").arg(date));
 	int b = 0;
 	while (query.next())
 	{
@@ -153,10 +157,12 @@ int myStatisticPic::getDayOnlyExErrNum(QString date)
 int myStatisticPic::getDayOnlyMiErNum(QString date)
 {
 	QSqlQuery query(dbToStatistic);
-	query.exec("create table checkRes (PCBID varchar(30) primary key, "
-		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), Result varchar(30), resImgPath varchar(100))");
+	query.exec("create table reCheckRes (PCBID varchar(30) primary key, "
+		"CarrierID varchar(30), REGIONID varchar(10), Date varchar(20), Time varchar(20), "
+		"Result varchar(30), ExtraErrorNumF varchar(10), MissErrorNumF varchar(10), "
+		"ExtraErrorNumB varchar(10), MissErrorNumB varchar(10), resImgPath varchar(100))");
 
-	query.exec(tr("select * from checkRes where Date = '%1' and Result = 'Missing Coating Error'").arg(date));
+	query.exec(tr("select * from reCheckRes where Date = '%1' and Result = 'Missing Coating Error'").arg(date));
 	int b = 0;
 	while (query.next())
 	{
@@ -168,8 +174,8 @@ int myStatisticPic::getDayOnlyMiErNum(QString date)
 int myStatisticPic::getDayBothErrNum(QString date)
 {
 	QSqlQuery query(dbToStatistic);
-	QString tableName = dbToStatistic.tables()[0];
-	query.exec(tr("select * from %1 where Date = '%2' and Result = 'Both Extra and Missing Coating Error'").arg(tableName).arg(date));
+	//QString tableName = dbToStatistic.tables()[0];
+	query.exec(tr("select * from reCheckRes where Date = '%1' and Result = 'Both Extra and Missing Coating Error'").arg(date));
 	int b = 0;
 	while (query.next())
 	{
@@ -181,8 +187,8 @@ int myStatisticPic::getDayBothErrNum(QString date)
 int myStatisticPic::getDayQualityNum(QString date)
 {
 	QSqlQuery query(dbToStatistic);
-	QString tableName = dbToStatistic.tables()[0];
-	query.exec(tr("select * from %1 where Date = '%2' and Result = 'No Error'").arg(tableName).arg(date));
+	//QString tableName = dbToStatistic.tables()[0];
+	query.exec(tr("select * from reCheckRes where Date = '%1' and Result = 'No Error'").arg(date));
 	int b = 0;
 	while (query.next())
 	{
@@ -194,8 +200,8 @@ int myStatisticPic::getDayQualityNum(QString date)
 int myStatisticPic::getWholeOnlyExErrNum()
 {
 	QSqlQuery query(dbToStatistic);
-	QString tableName = dbToStatistic.tables()[0];
-	query.exec(tr("select * from %1 where Result = 'Extra Coating Error'").arg(tableName));
+	//QString tableName = dbToStatistic.tables()[0];
+	query.exec(tr("select * from reCheckRes where Result = 'Extra Coating Error'"));
 	int b = 0;
 	while (query.next())
 	{
@@ -207,8 +213,8 @@ int myStatisticPic::getWholeOnlyExErrNum()
 int myStatisticPic::getWholeOnlyMiErNum()
 {
 	QSqlQuery query(dbToStatistic);
-	QString tableName = dbToStatistic.tables()[0];
-	query.exec(tr("select * from %1 where Result = 'Missing Coating Error'").arg(tableName));
+	//QString tableName = dbToStatistic.tables()[0];
+	query.exec(tr("select * from reCheckRes where Result = 'Missing Coating Error'"));
 	int b = 0;
 	while (query.next())
 	{
@@ -220,8 +226,8 @@ int myStatisticPic::getWholeOnlyMiErNum()
 int myStatisticPic::getWholeBothErrNum()
 {
 	QSqlQuery query(dbToStatistic);
-	QString tableName = dbToStatistic.tables()[0];
-	query.exec(tr("select * from %1 where Result = 'Both Extra and Missing Coating Error'").arg(tableName));
+	//QString tableName = dbToStatistic.tables()[0];
+	query.exec(tr("select * from reCheckRes where Result = 'Both Extra and Missing Coating Error'"));
 	int b = 0;
 	while (query.next())
 	{
@@ -233,8 +239,8 @@ int myStatisticPic::getWholeBothErrNum()
 int myStatisticPic::getWholeQualityNum()
 {
 	QSqlQuery query(dbToStatistic);
-	QString tableName = dbToStatistic.tables()[0];
-	query.exec(tr("select * from %1 where Result = 'No Error'").arg(tableName));
+	//QString tableName = dbToStatistic.tables()[0];
+	query.exec(tr("select * from reCheckRes where Result = 'No Error'"));
 	int b = 0;
 	while (query.next())
 	{

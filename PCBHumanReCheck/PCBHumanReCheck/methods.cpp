@@ -72,7 +72,84 @@ std::vector<cv::Point> QVectorQPointF2StdVectorcvPoint(QVector<QPointF> qPoints)
 	return stdVecPoint;
 }
 
-void eraseOneContour(std::vector<std::vector<cv::Point> > allContours, std::vector<cv::Point> oneContour)
+bool isSameDVecPt(std::vector<std::vector<cv::Point>> Pts1, std::vector<std::vector<cv::Point>> Pts2)
+{
+	if(Pts1.size() == Pts2.size())
+	{
+		for(int i = 0 ; i < Pts1.size(); i++)
+		{
+			if(Pts1[i].size() == Pts2[i].size())
+			{
+				for(int j = 0; j < Pts1[i].size(); j++)
+				{
+					if (Pts1[i][j].x != Pts2[i][j].x || Pts1[i][j].y != Pts2[i][j].y)
+						return false;
+				}
+			}
+			else
+			{
+				return false;
+			}
+		}
+	}
+	else
+	{
+		return false;
+	}
+	return true;
+}
+
+void _split(const std::string& s, char delim, std::vector<std::string>& elems)
+{
+	std::stringstream ss(s);
+	std::string item;
+
+	while (std::getline(ss, item, delim)) {
+		elems.push_back(item);
+	}
+}
+
+std::vector<std::string> split(const std::string& s, char delim)
+{
+	std::vector<std::string> elems;
+	_split(s, delim, elems);
+	return elems;
+}
+
+std::string changePathDirt(std::string folderPath)
+{
+	std::vector<std::string> names = split(folderPath, '/');
+	if(names.empty())
+	{
+		return folderPath;
+	}
+	std::string chanedPath = names[0];
+	for(std::vector<std::string>::iterator itor = names.begin() + 1; itor != names.end(); itor++)
+	{
+		chanedPath += '\\' + *itor;
+	}
+	return chanedPath;
+}
+
+QString changePathDirt(QString folderPath)
+{
+	QStringList list_ = folderPath.split('/');
+	QString changedPath;
+	for(int i = 0; i < list_.size(); i++)
+	{
+		if(i == 0)
+		{
+			changedPath = list_.at(0);
+		}
+		else
+		{
+			changedPath += '\\' + list_.at(i);
+		}
+	}
+	return changedPath;
+}
+
+void eraseOneContour(std::vector<std::vector<cv::Point> >& allContours, std::vector<cv::Point> oneContour)
 {
 	for(std::vector<std::vector<cv::Point> >::iterator itor = allContours.begin(); itor != allContours.end(); itor++)
 	{

@@ -94,6 +94,9 @@
     <ClCompile Include="parameters.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="abview.cpp">
+      <Filter>Source Files\myMainWindow</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="mymainwindow.h">
@@ -122,6 +125,9 @@
     </QtMoc>
     <QtMoc Include="picviewwindow.h">
       <Filter>Source Files\myMainWindow\pictureViewWin</Filter>
+    </QtMoc>
+    <QtMoc Include="abview.h">
+      <Filter>Source Files\myMainWindow</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -178,9 +184,15 @@
     <ClInclude Include="parameters.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_abview.h">
+      <Filter>Source Files\myMainWindow</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="picviewwindow.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="abview.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

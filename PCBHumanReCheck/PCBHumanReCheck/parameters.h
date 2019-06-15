@@ -2,7 +2,7 @@
 #include <opencv2/opencv.hpp>
 
 //Sending Signals
-#define ASK_FOR_NEW_CARRIERID_SIGNAL			QByteArray::fromHex("FFFFFFFF20FFFF20")
+#define ASK_FOR_NEW_CARRIERID_SIGNAL		QByteArray::fromHex("FFFFFFFF20FFFF20")
 #define PARDON_SIGNAL						QByteArray::fromHex("FFFFFFFF21FFFF21")
 
 //Received Signals
@@ -12,16 +12,16 @@
 
 
 //Color of drawn error contours
-#define EXTRA_COATING_ERROR_COLOR_AUTO		cv::Scalar(	0,	0,	255) //BGR
-#define MISS_COATING_ERROR_COLOR_AUTO		cv::Scalar(	14,	252,	245)
-#define EXTRA_COATING_ERROR_COLOR			cv::Scalar(	19,	117,	235)
-#define MISS_COATING_ERROR_COLOR			cv::Scalar(	135,	89,	249)
+#define EXTRA_COATING_ERROR_COLOR_AUTO		cv::Scalar(	0,	0,	  255) //BGR
+#define MISS_COATING_ERROR_COLOR_AUTO		cv::Scalar(	0,	255,  255)
+#define EXTRA_COATING_ERROR_COLOR			cv::Scalar(	34,	34,	  178)
+#define MISS_COATING_ERROR_COLOR			cv::Scalar(	0,	215,  255)
 
 //
-#define EXTRA_COATING_ERROR_QCOLOR_AUTO		QColor(	255,	0,	0) //RGB
-#define MISS_COATING_ERROR_QCOLOR_AUTO		QColor(	245,	252,	14)
-#define EXTRA_COATING_ERROR_QCOLOR			QColor(	235,	117,	19)
-#define MISS_COATING_ERROR_QCOLOR			QColor(	249,	89,	135)
+#define EXTRA_COATING_ERROR_QCOLOR_AUTO		QColor(	255,	0,	    0) //RGB
+#define MISS_COATING_ERROR_QCOLOR_AUTO		QColor(	255,	255,    0)
+#define EXTRA_COATING_ERROR_QCOLOR			QColor(	178,	34,	   34)
+#define MISS_COATING_ERROR_QCOLOR			QColor(	255,	215,	0)
 
 //
 enum REGION_IN_CARRIER
@@ -51,10 +51,12 @@ public:
 	onePCBResInfo();
 	~onePCBResInfo();
 
+	void resetOneSideRes(int sideInfo, onePCBResInfo obj);
 	bool empty();
 	void clearInfo();
 	void erase(int sideInfo, ERR_CONTOUR_NAME errNameInfo, std::vector<cv::Point> pts);
 	onePCBResInfo& operator = (onePCBResInfo& obj);
+	bool operator == (onePCBResInfo& obj);
 
 	std::string pcbID; 
 	cv::Mat imgResFSide;
@@ -82,7 +84,6 @@ public:
 
 	//resAuto
 	void setErrContoursAuto(std::string filePathXML);
-
 	void setOnePCBResAuto(REGION_IN_CARRIER viewID, onePCBResInfo oneRes);
 	void getOnePCBResAuto(REGION_IN_CARRIER viewID, onePCBResInfo& oneRes);
 	onePCBResInfo getOnePCBResAuto(REGION_IN_CARRIER viewID);
@@ -91,6 +92,9 @@ public:
 
 
 	//resManu
+	void setErrContoursManu(std::vector<REGION_IN_CARRIER> viewId, std::string filePathXML);
+	void saveManuErrContr(std::string filePath);
+
 	void setOnePCBResManu(REGION_IN_CARRIER viewID, onePCBResInfo oneRes);
 	void getOnePCBResManu(REGION_IN_CARRIER viewID, onePCBResInfo& oneRes);
 	onePCBResInfo getOnePCBResManu(REGION_IN_CARRIER viewID);
@@ -98,6 +102,9 @@ public:
 	void setCarrierResManu(std::map<REGION_IN_CARRIER, onePCBResInfo> carrierRes);
 	void getCarrierResManu(std::map<REGION_IN_CARRIER, onePCBResInfo>& allRes);
 	std::map<REGION_IN_CARRIER, onePCBResInfo> getCarrierResManu();
+
+	bool isRechecked(REGION_IN_CARRIER viewID);
+	void revokeManuChanged(REGION_IN_CARRIER viewID);
 
 	CarrierResInfo& operator = (CarrierResInfo& obj);
 private:

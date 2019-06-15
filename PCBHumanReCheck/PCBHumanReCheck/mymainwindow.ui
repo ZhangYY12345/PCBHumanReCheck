@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1067</width>
-    <height>641</height>
+    <width>1064</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <item>
        <layout class="QGridLayout" name="gridLayout">
         <item row="3" column="1">
-         <widget class="PicViewWindow" name="imgShowWin" native="true"/>
+         <widget class="abView" name="imgShowWin" native="true"/>
         </item>
         <item row="3" column="0">
          <spacer name="verticalSpacer_4">
@@ -144,27 +144,6 @@
           <item>
            <widget class="QComboBox" name="viewIDComBox"/>
           </item>
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>F/B侧</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QComboBox" name="viewFBSide">
-            <item>
-             <property name="text">
-              <string>Front</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Back</string>
-             </property>
-            </item>
-           </widget>
-          </item>
          </layout>
         </item>
         <item row="2" column="1">
@@ -189,6 +168,9 @@
               <family>微软雅黑</family>
               <pointsize>10</pointsize>
              </font>
+            </property>
+            <property name="currentText">
+             <string>1</string>
             </property>
             <item>
              <property name="text">
@@ -233,6 +215,41 @@
            </widget>
           </item>
           <item>
+           <widget class="QLabel" name="label_4">
+            <property name="font">
+             <font>
+              <family>微软雅黑</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="text">
+             <string>通信计算机IP</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="toConnectIP">
+            <property name="font">
+             <font>
+              <family>微软雅黑</family>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="inputMask">
+             <string>000.000.000.000</string>
+            </property>
+            <property name="frame">
+             <bool>false</bool>
+            </property>
+            <property name="cursorPosition">
+             <number>0</number>
+            </property>
+            <property name="cursorMoveStyle">
+             <enum>Qt::VisualMoveStyle</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
@@ -244,6 +261,20 @@
              </size>
             </property>
            </spacer>
+          </item>
+          <item>
+           <widget class="QPushButton" name="revokeBt">
+            <property name="text">
+             <string>撤销修改</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="saveBt">
+            <property name="text">
+             <string>保存修改</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -285,7 +316,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1067</width>
+     <width>1064</width>
      <height>23</height>
     </rect>
    </property>
@@ -424,9 +455,9 @@
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>PicViewWindow</class>
+   <class>abView</class>
    <extends>QWidget</extends>
-   <header>picviewwindow.h</header>
+   <header>abview.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

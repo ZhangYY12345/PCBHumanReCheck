@@ -22,6 +22,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QTableView>
@@ -29,7 +30,7 @@
 #include <QtWidgets/QToolButton>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
-#include "picviewwindow.h"
+#include "abview.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -50,7 +51,7 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QVBoxLayout *verticalLayout_2;
     QGridLayout *gridLayout;
-    PicViewWindow *imgShowWin;
+    abView *imgShowWin;
     QSpacerItem *verticalSpacer_4;
     QHBoxLayout *horizontalLayout;
     QLabel *label_18;
@@ -62,12 +63,14 @@ public:
     QLineEdit *onePCBID;
     QLabel *label_3;
     QComboBox *viewIDComBox;
-    QLabel *label_4;
-    QComboBox *viewFBSide;
     QHBoxLayout *horizontalLayout_3;
     QLabel *label_2;
     QComboBox *widthErrCon;
+    QLabel *label_4;
+    QLineEdit *toConnectIP;
     QSpacerItem *horizontalSpacer;
+    QPushButton *revokeBt;
+    QPushButton *saveBt;
     QVBoxLayout *verticalLayout;
     QTableView *carrierAutoResTableView;
     QTableView *carrierManuResTableView;
@@ -84,7 +87,7 @@ public:
     {
         if (myMainWindow->objectName().isEmpty())
             myMainWindow->setObjectName(QStringLiteral("myMainWindow"));
-        myMainWindow->resize(1067, 641);
+        myMainWindow->resize(1064, 640);
         actLogin = new QAction(myMainWindow);
         actLogin->setObjectName(QStringLiteral("actLogin"));
         actLogin->setCheckable(true);
@@ -129,7 +132,7 @@ public:
         gridLayout = new QGridLayout();
         gridLayout->setSpacing(6);
         gridLayout->setObjectName(QStringLiteral("gridLayout"));
-        imgShowWin = new PicViewWindow(centralWidget);
+        imgShowWin = new abView(centralWidget);
         imgShowWin->setObjectName(QStringLiteral("imgShowWin"));
 
         gridLayout->addWidget(imgShowWin, 3, 1, 1, 1);
@@ -203,16 +206,6 @@ public:
 
         horizontalLayout_4->addWidget(viewIDComBox);
 
-        label_4 = new QLabel(centralWidget);
-        label_4->setObjectName(QStringLiteral("label_4"));
-
-        horizontalLayout_4->addWidget(label_4);
-
-        viewFBSide = new QComboBox(centralWidget);
-        viewFBSide->setObjectName(QStringLiteral("viewFBSide"));
-
-        horizontalLayout_4->addWidget(viewFBSide);
-
 
         gridLayout->addLayout(horizontalLayout_4, 0, 1, 1, 1);
 
@@ -231,9 +224,34 @@ public:
 
         horizontalLayout_3->addWidget(widthErrCon);
 
+        label_4 = new QLabel(centralWidget);
+        label_4->setObjectName(QStringLiteral("label_4"));
+        label_4->setFont(font);
+
+        horizontalLayout_3->addWidget(label_4);
+
+        toConnectIP = new QLineEdit(centralWidget);
+        toConnectIP->setObjectName(QStringLiteral("toConnectIP"));
+        toConnectIP->setFont(font);
+        toConnectIP->setFrame(false);
+        toConnectIP->setCursorPosition(0);
+        toConnectIP->setCursorMoveStyle(Qt::VisualMoveStyle);
+
+        horizontalLayout_3->addWidget(toConnectIP);
+
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_3->addItem(horizontalSpacer);
+
+        revokeBt = new QPushButton(centralWidget);
+        revokeBt->setObjectName(QStringLiteral("revokeBt"));
+
+        horizontalLayout_3->addWidget(revokeBt);
+
+        saveBt = new QPushButton(centralWidget);
+        saveBt->setObjectName(QStringLiteral("saveBt"));
+
+        horizontalLayout_3->addWidget(saveBt);
 
 
         gridLayout->addLayout(horizontalLayout_3, 2, 1, 1, 1);
@@ -271,7 +289,7 @@ public:
         myMainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(myMainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 1067, 23));
+        menuBar->setGeometry(QRect(0, 0, 1064, 23));
         menu = new QMenu(menuBar);
         menu->setObjectName(QStringLiteral("menu"));
         menuOpen_database = new QMenu(menu);
@@ -340,12 +358,6 @@ public:
         label->setText(QApplication::translate("myMainWindow", "\345\215\225\344\270\252PCBID\357\274\232", Q_NULLPTR));
         onePCBID->setText(QString());
         label_3->setText(QApplication::translate("myMainWindow", "\345\214\272\345\237\237ID", Q_NULLPTR));
-        label_4->setText(QApplication::translate("myMainWindow", "F/B\344\276\247", Q_NULLPTR));
-        viewFBSide->clear();
-        viewFBSide->insertItems(0, QStringList()
-         << QApplication::translate("myMainWindow", "Front", Q_NULLPTR)
-         << QApplication::translate("myMainWindow", "Back", Q_NULLPTR)
-        );
         label_2->setText(QApplication::translate("myMainWindow", "\346\212\245\350\255\246\345\214\272\345\237\237\350\275\256\345\273\223\346\230\276\347\244\272\347\272\277\345\256\275", Q_NULLPTR));
         widthErrCon->clear();
         widthErrCon->insertItems(0, QStringList()
@@ -358,6 +370,11 @@ public:
          << QApplication::translate("myMainWindow", "7", Q_NULLPTR)
          << QApplication::translate("myMainWindow", "8", Q_NULLPTR)
         );
+        widthErrCon->setCurrentText(QApplication::translate("myMainWindow", "1", Q_NULLPTR));
+        label_4->setText(QApplication::translate("myMainWindow", "\351\200\232\344\277\241\350\256\241\347\256\227\346\234\272IP", Q_NULLPTR));
+        toConnectIP->setInputMask(QApplication::translate("myMainWindow", "000.000.000.000", Q_NULLPTR));
+        revokeBt->setText(QApplication::translate("myMainWindow", "\346\222\244\351\224\200\344\277\256\346\224\271", Q_NULLPTR));
+        saveBt->setText(QApplication::translate("myMainWindow", "\344\277\235\345\255\230\344\277\256\346\224\271", Q_NULLPTR));
         menu->setTitle(QApplication::translate("myMainWindow", "\346\226\207\344\273\266", Q_NULLPTR));
         menuOpen_database->setTitle(QApplication::translate("myMainWindow", "\346\211\223\345\274\200\346\225\260\346\215\256\345\272\223", Q_NULLPTR));
         menu_2->setTitle(QApplication::translate("myMainWindow", "\350\256\276\347\275\256", Q_NULLPTR));

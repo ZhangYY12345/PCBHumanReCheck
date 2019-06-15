@@ -61,6 +61,31 @@ onePCBResInfo::~onePCBResInfo()
 	}
 }
 
+void onePCBResInfo::resetOneSideRes(int sideInfo, onePCBResInfo obj)
+{
+	if (pcbID == obj.pcbID)
+	{
+		if (sideInfo == 0)		//front side
+		{
+			isModified = obj.isModified;
+			contourExtraF.assign(obj.contourExtraF.begin(), obj.contourExtraF.end());
+			contourMissF.assign(obj.contourMissF.begin(), obj.contourMissF.end());
+
+			extraErrorNum = contourExtraF.size() + contourExtraB.size();
+			missErrorNum = contourMissF.size() + contourMissB.size();
+		}
+		else if (sideInfo == 1)	//back side
+		{
+			isModified = obj.isModified;
+			contourExtraB.assign(obj.contourExtraB.begin(), obj.contourExtraB.end());
+			contourMissB.assign(obj.contourMissB.begin(), obj.contourMissB.end());
+
+			extraErrorNum = contourExtraF.size() + contourExtraB.size();
+			missErrorNum = contourMissF.size() + contourMissB.size();
+		}
+	}
+}
+
 bool onePCBResInfo::empty()
 {
 	return !(pcbID != "" && !imgResFSide.empty() && !imgResBSide.empty());
@@ -140,12 +165,24 @@ onePCBResInfo& onePCBResInfo::operator=(onePCBResInfo& obj)
 	missErrorNum = obj.missErrorNum;
 	isModified = obj.isModified;
 
-	contourExtraF = obj.contourExtraF;
-	contourMissF = obj.contourMissF;
-	contourExtraB = obj.contourExtraB;
-	contourMissB = obj.contourMissB;
+	contourExtraF.assign(obj.contourExtraF.begin(), obj.contourExtraF.end());
+	contourMissF.assign(obj.contourMissF.begin(), obj.contourMissF.end());
+	contourExtraB.assign(obj.contourExtraB.begin(), obj.contourExtraB.end());
+	contourMissB.assign(obj.contourMissB.begin(), obj.contourMissB.end());
 
 	return *this;
+}
+
+bool onePCBResInfo::operator==(onePCBResInfo& obj)
+{
+	return pcbID == obj.pcbID
+		&& extraErrorNum == obj.extraErrorNum
+		&& missErrorNum == obj.missErrorNum
+		&& isModified == obj.isModified
+		&& isSameDVecPt(contourExtraF, obj.contourExtraF)
+		&& isSameDVecPt(contourMissF, obj.contourMissF)
+		&& isSameDVecPt(contourExtraB, obj.contourExtraB)
+		&& isSameDVecPt(contourMissB, obj.contourMissB);
 }
 
 //------------------------------------------------
@@ -231,6 +268,62 @@ std::map<REGION_IN_CARRIER, onePCBResInfo> CarrierResInfo::getCarrierResAuto()
 	return carrierResInfoAuto;
 }
 
+void CarrierResInfo::setErrContoursManu(std::vector<REGION_IN_CARRIER> viewId, std::string filePathXML)
+{
+	if (!viewId.empty())
+	{
+		std::string labels[4] = { "ExtraContours_FrontSide", "MissContours_FrontSide", "ExtraContours_BackSide", "MissContours_BackSide" };
+
+		cv::FileStorage fs(filePathXML, cv::FileStorage::READ);
+		if (fs.isOpened())
+		{
+			for (std::vector<REGION_IN_CARRIER>::iterator itor = viewId.begin(); 
+				itor != viewId.end(); itor ++)
+			{
+				std::string upperLabel = g_viewName[*itor];
+				cv::FileNode fn = fs[upperLabel];
+
+				fn[labels[0]] >> carrierResInfoAuto[*itor].contourExtraF;
+				fn[labels[1]] >> carrierResInfoAuto[*itor].contourMissF;
+				fn[labels[2]] >> carrierResInfoAuto[*itor].contourExtraB;
+				fn[labels[3]] >> carrierResInfoAuto[*itor].contourMissB;
+
+				carrierResInfoAuto[*itor].extraErrorNum = 
+					carrierResInfoAuto[*itor].contourExtraF.size() 
+					+ carrierResInfoAuto[*itor].contourExtraB.size();
+				carrierResInfoAuto[*itor].missErrorNum = 
+					carrierResInfoAuto[*itor].contourMissF.size() 
+					+ carrierResInfoAuto[*itor].contourMissB.size();
+			}
+		}
+		fs.release();
+	}
+}
+
+void CarrierResInfo::saveManuErrContr(std::string filePath)
+{
+	std::string labels[4] = { "ExtraContours_FrontSide", "MissContours_FrontSide", "ExtraContours_BackSide", "MissContours_BackSide" };
+	cv::FileStorage fs(filePath, cv::FileStorage::WRITE);
+
+	if (fs.isOpened())
+	{
+		fs << "CarrierID" << curCarrierID;
+		for (std::map<REGION_IN_CARRIER, onePCBResInfo>::iterator itor = carrierResInfoManu.begin();
+			itor != carrierResInfoManu.end(); itor++)
+		{
+			std::string upperLabel = g_viewName[itor->first];
+			fs << upperLabel << "{";
+			fs << labels[0] << carrierResInfoManu[itor->first].contourExtraF;
+			fs << labels[1] << carrierResInfoManu[itor->first].contourMissF;
+			fs << labels[2] << carrierResInfoManu[itor->first].contourExtraB;
+			fs << labels[3] << carrierResInfoManu[itor->first].contourMissB;
+			fs << "}";
+		}
+
+	}
+	fs.release();
+}
+
 void CarrierResInfo::setOnePCBResManu(REGION_IN_CARRIER viewID, onePCBResInfo oneRes)
 {
 	carrierResInfoManu[viewID] = oneRes;
@@ -265,6 +358,19 @@ void CarrierResInfo::getCarrierResManu(std::map<REGION_IN_CARRIER, onePCBResInfo
 std::map<REGION_IN_CARRIER, onePCBResInfo> CarrierResInfo::getCarrierResManu()
 {
 	return carrierResInfoManu;
+}
+
+bool CarrierResInfo::isRechecked(REGION_IN_CARRIER viewID)
+{
+	return carrierResInfoManu.find(viewID) != carrierResInfoManu.end();
+}
+
+void CarrierResInfo::revokeManuChanged(REGION_IN_CARRIER viewID)
+{
+	if (isRechecked(viewID))
+	{
+		carrierResInfoManu.erase(viewID);
+	}
 }
 
 CarrierResInfo& CarrierResInfo::operator=(CarrierResInfo& obj)

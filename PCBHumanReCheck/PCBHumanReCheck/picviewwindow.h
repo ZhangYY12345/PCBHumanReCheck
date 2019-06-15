@@ -13,17 +13,22 @@ public:
 	PicViewWindow(QWidget *parent = Q_NULLPTR);
 	~PicViewWindow();
 
-
-	void loadOnePCBResInfo(onePCBResInfo& onePCBInfo, int lineWidth, int sideInfo);
-	void refreshOnePCBResInfo(onePCBResInfo& onePCBInfoManu);
-
-	bool isResModified();
-	onePCBResInfo getReCheckRes();
-	void getReCheckRes(onePCBResInfo& dstOnePCBResInfoManu);
-
+	void picViewInit(onePCBResInfo curOnePCBRes, int width, int indicAB);
 	void refreshPolyItemsDrawWidth(int widthErr);
 
 	void setErrConLineWidth(int widthErr);
+
+	void setImgInform();
+	void setImgInform(QString imgInfo, cv::Mat img);
+	void loadPolygonItem();
+	void loadPolygonItem(onePCBResInfo& onePCBInfo);
+
+	onePCBResInfo getReCheckRes();
+	void getReCheckRes(onePCBResInfo& dstOnePCBResInfoManu);
+	void recheckResImg();
+
+	signals:
+	void resChanged(int);
 
 	private slots:
 	void deletePolyItem(QPointF);
@@ -47,8 +52,4 @@ private:
 	QMatrix matrix;
 
 
-	void setImgInform(QString imgInfo, cv::Mat img);
-	void loadPolygonItem(onePCBResInfo& onePCBInfo);
-
-	void recheckResImg();
 };

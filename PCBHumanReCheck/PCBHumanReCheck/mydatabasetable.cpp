@@ -8,14 +8,14 @@ myDatabaseTable::myDatabaseTable(QWidget *parent)
 {
 	ui.setupUi(this);
 	model = new QSqlTableModel(this);
-	model->setTable("checkRes");
+	model->setTable("reCheckRes");
 	model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 	model->select();
 
 	ui.dbTableView->setModel(model);
-	ui.dbTableView->setColumnWidth(0, 80);
-	ui.dbTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-	ui.dbTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+	//ui.dbTableView->setColumnWidth(0, 80);
+	//ui.dbTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	//ui.dbTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
 	ui.dbTableView->resizeColumnsToContents();
 
 	connect(ui.queryButton, SIGNAL(clicked()), this, SLOT(toQuery()));
@@ -36,23 +36,15 @@ myDatabaseTable::myDatabaseTable(QSqlDatabase& db, QWidget* parent)
 {
 	ui.setupUi(this);
 	model = new QSqlTableModel(this, db);
-	QStringList tableList = db.tables();
-	if (tableList.isEmpty())
-	{
-		model->setTable("checkRes");
-	}
-	else
-	{
-		model->setTable(tableList[0]);
-	}
+	model->setTable("reCheckRes");
 
 	model->setEditStrategy(QSqlTableModel::OnManualSubmit);
 	model->select();
 
 	ui.dbTableView->setModel(model);
-	ui.dbTableView->setColumnWidth(0, 80);
-	ui.dbTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-	ui.dbTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
+	//ui.dbTableView->setColumnWidth(0, 80);
+	//ui.dbTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	//ui.dbTableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
 	ui.dbTableView->resizeColumnsToContents();
 
 	connect(ui.queryButton, SIGNAL(clicked()), this, SLOT(toQuery()));
@@ -160,7 +152,7 @@ void myDatabaseTable::toQuery()
 
 void myDatabaseTable::toShowAll()
 {
-	model->setTable("checkRes");
+	model->setTable("reCheckRes");
 	model->select();
 }
 

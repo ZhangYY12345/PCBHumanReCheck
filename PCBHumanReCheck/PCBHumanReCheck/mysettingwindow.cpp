@@ -2,12 +2,14 @@
 #include <QFiledialog>
 #include <QSqlDatabase>
 #include <QMessageBox>
+#include "methods.h"
 
 mySettingWindow::mySettingWindow(QWidget *parent)
 	: QWidget(parent)
 {
 	ui.setupUi(this);
 
+	connect(ui.toConnectIP, SIGNAL(editingFinished()), this, SLOT(setComIP()));
 	connect(ui.setDatabaseAutoBt, SIGNAL(clicked()), this, SLOT(setDatabaseAutoFile()));
 	connect(ui.setDatabaseManuBt, SIGNAL(clicked()), this, SLOT(setDatabaseManuFile()));
 	connect(ui.setResToGetPathBt, SIGNAL(clicked()), this, SLOT(setResFileToGetPath()));
@@ -15,9 +17,12 @@ mySettingWindow::mySettingWindow(QWidget *parent)
 	connect(ui.setModelBt, SIGNAL(clicked()), this, SLOT(setTransferModel()));
 }
 
-mySettingWindow::mySettingWindow(QString databaseName, QString databaseManuName, QString resFileToGetPath, QString resFileToMESPath, bool okModel, QWidget* parent)
+mySettingWindow::mySettingWindow(QString comIP, QString databaseName, QString databaseManuName, QString resFileToGetPath, QString resFileToMESPath, bool okModel, QWidget* parent)
 {
 	ui.setupUi(this);
+
+	ui.toConnectIP->setText(comIP);
+	ui.toConnectIP->setCursorMoveStyle(Qt::VisualMoveStyle);
 
 	ui.setDatabaseAuto->setText(databaseName);
 	ui.setDatabaseManu->setText(databaseManuName);
@@ -25,6 +30,7 @@ mySettingWindow::mySettingWindow(QString databaseName, QString databaseManuName,
 	ui.setResToMESPath->setText(resFileToMESPath);
 	ui.setModelBt->setChecked(okModel);
 
+	connect(ui.toConnectIP, SIGNAL(editingFinished()), this, SLOT(setComIP()));
 	connect(ui.setDatabaseAutoBt, SIGNAL(clicked()), this, SLOT(setDatabaseAutoFile()));
 	connect(ui.setDatabaseManuBt, SIGNAL(clicked()), this, SLOT(setDatabaseManuFile()));
 	connect(ui.setResToGetPathBt, SIGNAL(clicked()), this, SLOT(setResFileToGetPath()));
@@ -34,6 +40,16 @@ mySettingWindow::mySettingWindow(QString databaseName, QString databaseManuName,
 
 mySettingWindow::~mySettingWindow()
 {
+}
+
+void mySettingWindow::updateComIP(QString comIP)
+{
+	if(ipCheck(comIP))
+	{
+		toConnectComIP = comIP;
+		ui.toConnectIP->setText(toConnectComIP);
+		ui.toConnectIP->setCursorMoveStyle(Qt::VisualMoveStyle);
+	}
 }
 
 void mySettingWindow::updateDatabaseAutoFile(QString newName)
@@ -68,6 +84,16 @@ void mySettingWindow::updateOKModel(bool okModel)
 	connect(ui.setModelBt, SIGNAL(clicked()), this, SLOT(setTransferModel()));
 }
 
+void mySettingWindow::setComIP()
+{
+	QString comIP = ui.toConnectIP->text();
+	if(ipCheck(comIP))
+	{
+		toConnectComIP = comIP;
+		emit newComIP(toConnectComIP);
+	}
+}
+
 void mySettingWindow::setDatabaseAutoFile()
 {
 	QString fileName = QFileDialog::getOpenFileName(this, QString::fromLocal8Bit("数据库加载"), ".", QString::fromLocal8Bit("数据库") + tr(" (*.db)"));
@@ -76,7 +102,7 @@ void mySettingWindow::setDatabaseAutoFile()
 		return;
 	}
 
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "RESULT_DB");
+	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "AUTO_RESULT_DB");
 	db.setDatabaseName(fileName);
 
 	if (!db.open())
@@ -85,7 +111,7 @@ void mySettingWindow::setDatabaseAutoFile()
 		return;
 	}
 	db.close();
-	QSqlDatabase::removeDatabase("RESULT_DB");
+	QSqlDatabase::removeDatabase("AUTO_RESULT_DB");
 
 	databaseAutoName = fileName;
 	ui.setDatabaseAuto->setText(databaseAutoName);
@@ -100,7 +126,7 @@ void mySettingWindow::setDatabaseManuFile()
 		return;
 	}
 
-	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "RESULT_DB");
+	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE", "MANU_RESULT_DB");
 	db.setDatabaseName(fileName);
 
 	if (!db.open())
@@ -109,7 +135,7 @@ void mySettingWindow::setDatabaseManuFile()
 		return;
 	}
 	db.close();
-	QSqlDatabase::removeDatabase("RESULT_DB");
+	QSqlDatabase::removeDatabase("MANU_RESULT_DB");
 
 	databaseManuName = fileName;
 	ui.setDatabaseManu->setText(databaseManuName);
@@ -120,6 +146,8 @@ void mySettingWindow::setDatabaseManuFile()
 void mySettingWindow::setResFileToGetPath()
 {
 	resFileToGetPath = QFileDialog::getExistingDirectory(this);
+	resFileToGetPath = changePathDirt(resFileToGetPath);
+
 	ui.setResToGetPath->setText(resFileToGetPath);
 	emit newResFileToGetPath(resFileToGetPath);
 }
@@ -127,6 +155,8 @@ void mySettingWindow::setResFileToGetPath()
 void mySettingWindow::setResFileToMESPath()
 {
 	resFileToMESPath = QFileDialog::getExistingDirectory(this);
+	resFileToMESPath = changePathDirt(resFileToMESPath);
+
 	ui.setResToMESPath->setText(resFileToMESPath);
 	emit newResFileToMESPath(resFileToMESPath);
 }
@@ -135,4 +165,24 @@ void mySettingWindow::setTransferModel()
 {
 	isTransferOK = ui.setModelBt->isChecked();
 	emit newOKModel(isTransferOK);
+}
+
+bool mySettingWindow::ipCheck(QString comIP)
+{
+	QStringList comIP_split;
+	comIP_split = comIP.split('.');
+	if (comIP_split.size() == 4)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			int num = comIP_split[i].toInt();
+			if (num < 0 || num > 255)
+				return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+	return true;
 }

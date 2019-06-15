@@ -192,6 +192,8 @@ void AreaPolygonItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
 MainWinGraphView::MainWinGraphView(QWidget *parent)
 	: QGraphicsView(parent)
 {
+	zoomLevel = 1;
+
 	this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 	this->setResizeAnchor(QGraphicsView::AnchorUnderMouse);
 }
@@ -202,6 +204,10 @@ MainWinGraphView::~MainWinGraphView()
 
 void MainWinGraphView::zoom(int value)
 {
+	if(value <= 0)
+	{
+		value = 1;
+	}
 	zoomLevel = value;
 
 	ZoomScale = pow(qreal(2), qreal(value - 600) / 200.0);
@@ -215,6 +221,10 @@ void MainWinGraphView::zoom(int value)
 
 void MainWinGraphView::zoom(int value, QPointF pos)
 {
+	if(value <= 0)
+	{
+		value = 1;
+	}
 	zoomLevel = value;
 
 	ZoomScale = pow(qreal(2), qreal(value - 600) / 200.0);
@@ -344,7 +354,7 @@ void MainWinGraphView::mouseMoveEvent(QMouseEvent* event)
 
 void MainWinGraphView::mouseDoubleClickEvent(QMouseEvent* event)
 {
-	zoomLevel = std::min(800, zoomLevel + 10);
+	zoomLevel = cv::min(800, zoomLevel + 10);
 
 	QPointF pos = event->pos();
 	zoom(zoomLevel, pos);

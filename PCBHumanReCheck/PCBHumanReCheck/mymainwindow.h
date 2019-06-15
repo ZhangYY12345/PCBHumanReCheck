@@ -34,6 +34,8 @@ public:
 	void setTransferModelAuto();
 	void setTransferModelNotAuto();
 
+	void updateComIP(QString);
+
 	void updateDatabaseAutoFile(QString);
 	void updateDatabaseManuFile(QString);
 
@@ -42,12 +44,22 @@ public:
 	void updateOKModel(bool);
 
 	void showAutoCarrierInfo();
+	void showAutoCarrierInfo(QString onePCBId);
 	void showManuCarrierInfo();
 
-	void resViewUpdate(const QString& viewID);
-	void resViewSideUpdate(int);
+	void resViewUpdate(int);
+
+	void updateView_db_auto(const QModelIndex & index);
+	void updateView_db_manu(const QModelIndex & index);
+
+
+	void onePCBUpdate();
+	void revokeAllChanges();
+	void saveAllChanges();
 
 	void refreshErrConWidth(QString);
+
+	void getToConnectIP();
 
 	void showReadyMessage();
 
@@ -75,13 +87,27 @@ private:
 
 	QString carrierID;
 	REGION_IN_CARRIER curViewID;
-	int viewSide;
 
 	CarrierResInfo curCarrierRes;
 	onePCBResInfo curOnePCBResManu;
 
 	QString ipAddress;
+	QString connectComIP;
+
 	QString getHostIPAddress();
+	std::vector<QString> getHostIPAddresses();
+
+	bool ipCheck(QString comIP);
+	bool isIPInner(QString comIP);
+
+	QString transDBPath(QString imgPath);
+	std::string transDBPath(std::string imgPath);
+
+	void checkDataDBAuto();
+	void checkDataDBManu();
+
+	bool setOnePCBErrCtrs(REGION_IN_CARRIER viewId, onePCBResInfo& onePCB, std::string filePathXML);
+	bool isXmlEmpty(std::string filePathXML);
 
 	void setComBox();
 
@@ -89,7 +115,6 @@ private:
 	void getCarrierID_Date(QString onePCBID, QString& carrierId, QString& checkDate);
 
 	void writeDatabaseTable(QString str);
-	void saveErrContours(std::string filePath);
 	void writeDatabaseTable_TXTFile(onePCBResInfo onePCBResManu);
 protected:
 	void closeEvent(QCloseEvent* event) override;

@@ -15,7 +15,9 @@ int main(int argc, char *argv[])
 //int main(int argc, char *argv[])
 //{
 //	Mat img = imread("D:/14-00-10_WHOLEVIEW.jpg");
-//
+//	cv::Mat img = cv::imread("\\\\192.168.0.2\\d\\test1\\204010304TEQ0C7HDR-121159-WHOLEVIEW_A.jpg");
+
+
 //	//std::vector<std::vector<cv::Point>> dots;
 //	//std::vector<cv::Point> subDots;
 //

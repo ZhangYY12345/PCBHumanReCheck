@@ -16,6 +16,7 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QRadioButton>
 #include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QToolButton>
@@ -28,6 +29,10 @@ class Ui_mySettingWindow
 {
 public:
     QVBoxLayout *verticalLayout_2;
+    QHBoxLayout *horizontalLayout_6;
+    QLabel *label_3;
+    QLineEdit *toConnectIP;
+    QSpacerItem *horizontalSpacer_3;
     QHBoxLayout *horizontalLayout;
     QLabel *label_18;
     QLabel *setDatabaseAuto;
@@ -59,6 +64,33 @@ public:
         verticalLayout_2->setSpacing(6);
         verticalLayout_2->setContentsMargins(11, 11, 11, 11);
         verticalLayout_2->setObjectName(QStringLiteral("verticalLayout_2"));
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setSpacing(6);
+        horizontalLayout_6->setObjectName(QStringLiteral("horizontalLayout_6"));
+        label_3 = new QLabel(mySettingWindow);
+        label_3->setObjectName(QStringLiteral("label_3"));
+        QFont font;
+        font.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
+        font.setPointSize(10);
+        label_3->setFont(font);
+
+        horizontalLayout_6->addWidget(label_3);
+
+        toConnectIP = new QLineEdit(mySettingWindow);
+        toConnectIP->setObjectName(QStringLiteral("toConnectIP"));
+        toConnectIP->setFont(font);
+        toConnectIP->setFrame(true);
+        toConnectIP->setCursorMoveStyle(Qt::VisualMoveStyle);
+
+        horizontalLayout_6->addWidget(toConnectIP);
+
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_6->addItem(horizontalSpacer_3);
+
+
+        verticalLayout_2->addLayout(horizontalLayout_6);
+
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
         horizontalLayout->setObjectName(QStringLiteral("horizontalLayout"));
@@ -69,9 +101,6 @@ public:
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(label_18->sizePolicy().hasHeightForWidth());
         label_18->setSizePolicy(sizePolicy);
-        QFont font;
-        font.setFamily(QString::fromUtf8("\345\276\256\350\275\257\351\233\205\351\273\221"));
-        font.setPointSize(10);
         label_18->setFont(font);
 
         horizontalLayout->addWidget(label_18);
@@ -206,6 +235,8 @@ public:
     void retranslateUi(QWidget *mySettingWindow)
     {
         mySettingWindow->setWindowTitle(QApplication::translate("mySettingWindow", "mySettingWindow", Q_NULLPTR));
+        label_3->setText(QApplication::translate("mySettingWindow", "\350\207\252\345\212\250\346\243\200\346\265\213\347\273\223\346\236\234\346\211\200\345\234\250\350\256\241\347\256\227\346\234\272IP:", Q_NULLPTR));
+        toConnectIP->setInputMask(QApplication::translate("mySettingWindow", "000.000.000.000", Q_NULLPTR));
         label_18->setText(QApplication::translate("mySettingWindow", "\350\207\252\345\212\250\346\243\200\346\265\213\347\273\223\346\236\234\346\225\260\346\215\256\345\272\223\346\226\207\344\273\266\357\274\232", Q_NULLPTR));
         setDatabaseAuto->setText(QString());
         setDatabaseAutoBt->setText(QApplication::translate("mySettingWindow", "...", Q_NULLPTR));

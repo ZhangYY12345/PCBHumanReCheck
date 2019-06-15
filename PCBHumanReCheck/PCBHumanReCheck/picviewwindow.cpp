@@ -9,15 +9,17 @@ PicViewWindow::PicViewWindow(QWidget *parent)
 	ui.setupUi(this);
 
 	pixmapItem = new QGraphicsPixmapItem(QPixmap(0, 0));
-	pixmapItem->setFlag(QGraphicsItem::ItemIsMovable);
 	graphicsScene = new QGraphicsScene();
 	graphicsScene->addItem(pixmapItem);
 	ui.graphicsView->setScene(graphicsScene);
 
+	zoomLevel = ui.zoomControl->value();
+	ui.graphicsView->setZoomLevel(zoomLevel);
+
 	connect(ui.graphicsView, SIGNAL(newZoomValue(int)), this, SLOT(setZoomLevel(int)));
 	connect(ui.zoomControl, SIGNAL(valueChanged(int)), this, SLOT(zoomView(int)));
 
-	lineWidth = 1;
+	lineWidth = 5;
 	sideIndi = 3;  //either the front side or the back side
 }
 
@@ -25,32 +27,13 @@ PicViewWindow::~PicViewWindow()
 {
 }
 
-void PicViewWindow::loadOnePCBResInfo(onePCBResInfo& onePCBInfo, int lineWidth, int sideInfo)
+void PicViewWindow::picViewInit(onePCBResInfo curOnePCBRes, int width, int indicAB)
 {
-	sideIndi = sideInfo;
-	this->lineWidth = lineWidth;
-	if(sideInfo == 0)
-	{
-		setImgInform("ImgRes FrontSide", onePCBInfo.imgResFSide);
-		loadPolygonItem(onePCBInfo);
-	}
-	else if(sideInfo == 1)
-	{
-		setImgInform("ImgRes BackSide", onePCBInfo.imgResBSide);
-		loadPolygonItem(onePCBInfo);
-	}
+	curOnePCBResManu = curOnePCBRes;
+	lineWidth = width;
+	sideIndi = indicAB;
 
-	curOnePCBResManu = onePCBInfo;
-}
-
-void PicViewWindow::refreshOnePCBResInfo(onePCBResInfo& onePCBInfoManu)
-{
-	loadOnePCBResInfo(onePCBInfoManu, lineWidth, sideIndi);
-}
-
-bool PicViewWindow::isResModified()
-{
-	return curOnePCBResManu.isModified;
+	ui.graphicsView->clearAllPolyItems();
 }
 
 /**
@@ -59,13 +42,11 @@ bool PicViewWindow::isResModified()
  */
 onePCBResInfo PicViewWindow::getReCheckRes()
 {
-	recheckResImg();
 	return curOnePCBResManu;
 }
 
 void PicViewWindow::getReCheckRes(onePCBResInfo& dstOnePCBResInfoManu)
 {
-	recheckResImg();
 	dstOnePCBResInfoManu = curOnePCBResManu;
 }
 
@@ -86,36 +67,40 @@ void PicViewWindow::setErrConLineWidth(int widthErr)
 	lineWidth = widthErr;
 }
 
-void PicViewWindow::deletePolyItem(QPointF pt)
+void PicViewWindow::setImgInform()
 {
-	AreaPolygonItem * itemToRemove = (AreaPolygonItem*)(ui.graphicsView->getOneErrTypePolyItems(pt));
+	if(sideIndi == 0)		//front side
+	{
+		ui.imgInform->setText("ImgRes FrontSide");
 
-	QPolygonF polyPts = itemToRemove->polygon();
-	std::vector<cv::Point> stdVecPoints = QVectorQPointF2StdVectorcvPoint(polyPts);
-	curOnePCBResManu.erase(sideIndi, itemToRemove->getAreaName(), stdVecPoints);
+		if (curOnePCBResManu.imgResFSide.empty()) {
+			pixmapItem->setPixmap(QPixmap());
+			return;
+		}
 
-	ui.graphicsView->removeItem(itemToRemove);
-}
+		QImage image(curOnePCBResManu.imgResFSide.data, 
+			curOnePCBResManu.imgResFSide.cols, curOnePCBResManu.imgResFSide.rows, 
+			curOnePCBResManu.imgResFSide.step, QImage::Format_RGB888);
+		pixmapItem->setPixmap(QPixmap::fromImage(image.rgbSwapped()));
+		graphicsScene->setSceneRect(0, 0, curOnePCBResManu.imgResFSide.cols, curOnePCBResManu.imgResFSide.rows);
 
-void PicViewWindow::setZoomLevel(int value)
-{
-	disconnect(ui.zoomControl, SIGNAL(valueChanged(int)), this, SLOT(zoomView(int)));
-	ui.zoomControl->setValue(value);
-	connect(ui.zoomControl, SIGNAL(valueChanged(int)), this, SLOT(zoomView(int)));
-}
+	}
+	else if(sideIndi == 1)	//back side
+	{
+		ui.imgInform->setText("ImgRes BackSide");
 
-void PicViewWindow::zoomView(int value)
-{
-	zoomLevel = value;
+		if (curOnePCBResManu.imgResBSide.empty()) {
+			pixmapItem->setPixmap(QPixmap());
+			return;
+		}
 
-	ZoomScale = pow(qreal(2), qreal(value - 600) / 200.0);
-	matrix.reset();
-	matrix.scale(ZoomScale, ZoomScale);
-	ui.graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
-	ui.graphicsView->setResizeAnchor(QGraphicsView::AnchorUnderMouse);
-	ui.graphicsView->setMatrix(matrix);
+		QImage image(curOnePCBResManu.imgResBSide.data,
+			curOnePCBResManu.imgResBSide.cols, curOnePCBResManu.imgResBSide.rows,
+			curOnePCBResManu.imgResBSide.step, QImage::Format_RGB888);
+		pixmapItem->setPixmap(QPixmap::fromImage(image.rgbSwapped()));
+		graphicsScene->setSceneRect(0, 0, curOnePCBResManu.imgResBSide.cols, curOnePCBResManu.imgResBSide.rows);
 
-	ui.graphicsView->setZoomLevel(zoomLevel);
+	}
 }
 
 void PicViewWindow::setImgInform(QString imgInfo, cv::Mat img)
@@ -126,8 +111,15 @@ void PicViewWindow::setImgInform(QString imgInfo, cv::Mat img)
 		pixmapItem->setPixmap(QPixmap());
 		return;
 	}
-	pixmapItem->setPixmap(QPixmap::fromImage(cvMat2QImage(img)));
+	QImage image(img.data, img.cols, img.rows, img.step, QImage::Format_RGB888);
+
+	pixmapItem->setPixmap(QPixmap::fromImage(image));
 	graphicsScene->setSceneRect(0, 0, img.cols, img.rows);
+}
+
+void PicViewWindow::loadPolygonItem()
+{
+	loadPolygonItem(curOnePCBResManu);
 }
 
 void PicViewWindow::loadPolygonItem(onePCBResInfo& onePCBInfo)
@@ -178,10 +170,59 @@ void PicViewWindow::loadPolygonItem(onePCBResInfo& onePCBInfo)
 	}
 }
 
+void PicViewWindow::deletePolyItem(QPointF pt)
+{
+	AreaPolygonItem * itemToRemove = (AreaPolygonItem*)(ui.graphicsView->getOneErrTypePolyItems(pt));
+
+	if (itemToRemove != Q_NULLPTR)
+	{
+		QPolygonF polyPts = itemToRemove->polygon();
+		std::vector<cv::Point> stdVecPoints = QVectorQPointF2StdVectorcvPoint(polyPts);
+		curOnePCBResManu.erase(sideIndi, itemToRemove->getAreaName(), stdVecPoints);
+
+		ui.graphicsView->removeItem(itemToRemove);
+
+		emit resChanged(sideIndi);
+	}
+}
+
+void PicViewWindow::setZoomLevel(int value)
+{
+	disconnect(ui.zoomControl, SIGNAL(valueChanged(int)), this, SLOT(zoomView(int)));
+	ui.zoomControl->setValue(value);
+	connect(ui.zoomControl, SIGNAL(valueChanged(int)), this, SLOT(zoomView(int)));
+}
+
+void PicViewWindow::zoomView(int value)
+{
+	if(value <= 0)
+	{
+		value = 1;
+	}
+
+	zoomLevel = value;
+
+	ZoomScale = pow(qreal(2), qreal(value - 600) / 200.0);
+	matrix.reset();
+	matrix.scale(ZoomScale, ZoomScale);
+	ui.graphicsView->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+	ui.graphicsView->setResizeAnchor(QGraphicsView::AnchorUnderMouse);
+	ui.graphicsView->setMatrix(matrix);
+
+	ui.graphicsView->setZoomLevel(zoomLevel);
+}
+
+
 void PicViewWindow::recheckResImg()
 {
-	cv::drawContours(curOnePCBResManu.imgResFSide, curOnePCBResManu.contourExtraF, -1, EXTRA_COATING_ERROR_COLOR, 1, cv::LINE_4);
-	cv::drawContours(curOnePCBResManu.imgResFSide, curOnePCBResManu.contourMissF, -1, MISS_COATING_ERROR_COLOR, 1, cv::LINE_4);
-	cv::drawContours(curOnePCBResManu.imgResBSide, curOnePCBResManu.contourExtraB, -1, EXTRA_COATING_ERROR_COLOR, 1, cv::LINE_4);
-	cv::drawContours(curOnePCBResManu.imgResBSide, curOnePCBResManu.contourMissB, -1, MISS_COATING_ERROR_COLOR, 1, cv::LINE_4);
+	if (sideIndi == 0)				//front side
+	{
+		cv::drawContours(curOnePCBResManu.imgResFSide, curOnePCBResManu.contourExtraF, -1, EXTRA_COATING_ERROR_COLOR, 1, cv::LINE_4);
+		cv::drawContours(curOnePCBResManu.imgResFSide, curOnePCBResManu.contourMissF, -1, MISS_COATING_ERROR_COLOR, 1, cv::LINE_4);
+	}
+	else if (sideIndi == 1)			//back side
+	{
+		cv::drawContours(curOnePCBResManu.imgResBSide, curOnePCBResManu.contourExtraB, -1, EXTRA_COATING_ERROR_COLOR, 1, cv::LINE_4);
+		cv::drawContours(curOnePCBResManu.imgResBSide, curOnePCBResManu.contourMissB, -1, MISS_COATING_ERROR_COLOR, 1, cv::LINE_4);
+	}
 }
