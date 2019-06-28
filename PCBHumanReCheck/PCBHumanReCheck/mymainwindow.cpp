@@ -858,8 +858,14 @@ std::string myMainWindow::transDBPath(std::string imgPath)
 		comPan_ = split(imgPath, ':');
 
 		//char lowerPanName = std::tolower(comPan_[0].at(0));
-
-		transedPath = "\\\\" + connectComIP.toStdString() + '\\' + comPan_[0] + comPan_[1];
+		if (comPan_.size() == 2)
+		{
+			transedPath = "\\\\" + connectComIP.toStdString() + '\\' + comPan_[0] + comPan_[1];
+		}
+		else if(comPan_.size() == 1)
+		{
+			transedPath = "\\\\" + connectComIP.toStdString() + '\\' + comPan_[0];
+		}
 	}
 	else if(isIPInner(connectComIP))
 	{
@@ -1230,5 +1236,17 @@ void myMainWindow::closeEvent(QCloseEvent* event)
 		delete modelManuResQuery;
 		modelManuResQuery = Q_NULLPTR;
 	}
+
+	if (dbOfManuRes.isOpen())
+	{
+		dbOfManuRes.close();
+	}
+	QSqlDatabase::removeDatabase("MANU_RESULT_DB");
+
+	if (dbOfAutoRes.isOpen())
+	{
+		dbOfAutoRes.close();
+	}
+	QSqlDatabase::removeDatabase("AUTO_RESULT_DB");
 }
 

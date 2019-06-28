@@ -113,12 +113,15 @@ void myStatisticPic::drawLineChart()
 
 void myStatisticPic::winClose()
 {
-	dbToStatistic.close();
-	QString name;
+	if (dbToStatistic.isOpen())
 	{
-		name = QSqlDatabase::database().connectionName();
+		dbToStatistic.close();
 	}
-	QSqlDatabase::removeDatabase(name);
+	//QString name;
+	//{
+	//	name = QSqlDatabase::database().connectionName();
+	//}
+	//QSqlDatabase::removeDatabase(name);
 
 }
 
